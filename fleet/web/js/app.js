@@ -635,6 +635,11 @@ const app = createApp({
     // 11. Lifecycle onMounted Initialization
     // ==========================================
     onMounted(async () => {
+      try {
+        const appEl = document.getElementById('app');
+        if (appEl) appEl.removeAttribute('v-cloak');
+      } catch (e) {}
+
       // 1. Detect Parent Theme
       let initTheme = 'light';
       try {
@@ -678,6 +683,10 @@ const app = createApp({
       try { await fetchRecords(); } catch (e) {}
       try { await fetchVehicles(); } catch (e) {}
       try { await fetchDailyRanking(); } catch (e) {}
+
+      await nextTick();
+      ChartEngine.resizeAll();
+      if (window.lucide) window.lucide.createIcons();
     });
 
     return {

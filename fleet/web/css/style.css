@@ -74,14 +74,31 @@ html.dark, html[data-theme="dark"] {
   --modal-sub-border: rgba(51, 65, 85, 0.6);
 }
 
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--bg-color) !important;
   background-image: var(--bg-gradient) !important;
   background-attachment: fixed;
   color: var(--text-main);
-  overflow-x: hidden;
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#app {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+[v-cloak] {
+  opacity: 0;
 }
 
 .font-mono-nums {

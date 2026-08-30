@@ -61,22 +61,23 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="css/style.css?v=2.6">
+  <link rel="stylesheet" href="css/style.css?v=3.5">
 </head>
 <body class="min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white transition-colors duration-200">
 
   <div id="app" v-cloak class="flex-1 flex flex-col">
     
     <!-- Top Bar -->
-    <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-3 sm:px-4 lg:px-8 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4 transition-colors">
-      <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/20">
+    <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-3 sm:px-4 lg:px-8 py-2 sm:py-3 flex flex-wrap items-center justify-between gap-2 sm:gap-4 transition-colors">
+      <!-- Left: Logo & Title -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/20 flex-shrink-0">
           <i data-lucide="truck" class="w-4 h-4 sm:w-5 sm:h-5 text-white"></i>
         </div>
         <div>
           <div class="flex items-center gap-1.5 sm:gap-2">
-            <h1 class="font-extrabold text-base sm:text-lg lg:text-xl tracking-tight text-slate-900 dark:text-white">FleetMaster</h1>
-            <span class="px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] font-bold rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">人效&运维</span>
+            <h1 class="font-extrabold text-sm sm:text-lg lg:text-xl tracking-tight text-slate-900 dark:text-white whitespace-nowrap">FleetMaster</h1>
+            <span class="px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] font-bold rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 whitespace-nowrap">人效&运维</span>
           </div>
           <p class="hidden md:block text-xs text-slate-500 dark:text-slate-400">基于 7-8月分月统计与费用补全实时核算引擎</p>
         </div>
@@ -85,30 +86,30 @@
       <!-- Center Period Selector (仅在人效排名与数据大屏看板中生效并展示) -->
       <div 
         v-show="currentTab === 'rankings' || currentTab === 'overview'" 
-        class="flex items-center bg-slate-100 dark:bg-slate-950/70 p-0.5 sm:p-1 rounded-xl border border-slate-200 dark:border-slate-800 transition-all flex-shrink-0">
+        class="order-3 sm:order-2 w-full sm:w-auto flex items-center justify-center bg-slate-100 dark:bg-slate-950/70 p-0.5 sm:p-1 rounded-xl border border-slate-200 dark:border-slate-800 transition-all">
         <button 
           @click="setPeriod('all')"
           :class="currentPeriod === 'all' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
-          class="px-2 sm:px-3.5 py-1 sm:py-1.5 text-[11px] sm:text-xs rounded-lg transition-all flex items-center gap-1">
-          <i data-lucide="calendar" class="w-3 h-3 sm:w-3.5 sm:h-3.5 hidden xs:inline"></i>
+          class="flex-1 sm:flex-initial px-2.5 sm:px-3.5 py-1 sm:py-1.5 text-[11px] sm:text-xs rounded-lg transition-all flex items-center justify-center gap-1">
+          <i data-lucide="calendar" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
           <span>7-8月全期</span>
         </button>
         <button 
           @click="setPeriod('july')"
           :class="currentPeriod === 'july' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
-          class="px-2 sm:px-3.5 py-1 sm:py-1.5 text-[11px] sm:text-xs rounded-lg transition-all">
+          class="flex-1 sm:flex-initial px-2.5 sm:px-3.5 py-1 sm:py-1.5 text-[11px] sm:text-xs rounded-lg transition-all text-center">
           <span>7月</span>
         </button>
         <button 
           @click="setPeriod('aug')"
           :class="currentPeriod === 'aug' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
-          class="px-2 sm:px-3.5 py-1 sm:py-1.5 text-[11px] sm:text-xs rounded-lg transition-all">
+          class="flex-1 sm:flex-initial px-2.5 sm:px-3.5 py-1 sm:py-1.5 text-[11px] sm:text-xs rounded-lg transition-all text-center">
           <span>8月</span>
         </button>
       </div>
 
-      <!-- Action Buttons -->
-      <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+      <!-- Right: Action Buttons -->
+      <div class="order-2 sm:order-3 flex items-center gap-1.5 sm:gap-2">
         <button 
           @click="openAddRecordModal"
           class="px-2.5 sm:px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center gap-1 shadow-md shadow-emerald-600/20">
@@ -1389,8 +1390,8 @@
   </div>
 
   <!-- Main App Script -->
-  <script src="js/charts.js?v=2.6"></script>
-  <script src="js/app.js?v=2.6"></script>
+  <script src="js/charts.js?v=3.5"></script>
+  <script src="js/app.js?v=3.5"></script>
   <script>
     lucide.createIcons();
     setInterval(() => {

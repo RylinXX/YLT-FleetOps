@@ -2457,9 +2457,9 @@
 
 
         <!-- 📊 面板三: 系统参数配置 -->
-                <!-- ==================== 人员人效与车队智慧运维 (FleetMaster) ==================== -->
-        <section class="main-content" id="panel-fleet" style="padding:0; min-height:calc(100vh - 75px); overflow:hidden;">
-            <iframe id="fleet-iframe" src="/fleet/" style="width:100%; height:calc(100vh - 75px); border:none; border-radius:12px; background:transparent; display:block;" allow="fullscreen"></iframe>
+        <!-- ==================== 人员人效与车队智慧运维 (FleetMaster) ==================== -->
+        <section class="main-content" id="panel-fleet" style="padding:0; min-height:calc(100vh - 85px); overflow:hidden;">
+            <iframe id="fleet-iframe" src="/fleet/?v=3.5" style="width:100%; height:calc(100vh - 85px); border:none; border-radius:12px; background:transparent; display:block;" allow="fullscreen"></iframe>
         </section>
 
         <section class="main-content" id="panel-config">
@@ -2886,20 +2886,12 @@
             } else if (tab === 'fleet') {
                 const iframe = document.getElementById('fleet-iframe');
                 if (iframe) {
-                    if (!iframe.src || iframe.src.endsWith('/templates/index.html') || iframe.src === 'about:blank') {
-                        iframe.src = '/fleet/';
+                    if (!iframe.src || iframe.src.endsWith('/templates/index.html') || iframe.src === 'about:blank' || !iframe.src.includes('/fleet/')) {
+                        iframe.src = '/fleet/?v=3.5';
                     }
                     try {
                         if (iframe.contentWindow) {
                             iframe.contentWindow.postMessage({ type: 'THEME_CHANGE', theme: currentTheme }, '*');
-                        }
-                        if (iframe.contentDocument && iframe.contentDocument.documentElement) {
-                            iframe.contentDocument.documentElement.setAttribute('data-theme', currentTheme);
-                            if (currentTheme === 'dark') {
-                                iframe.contentDocument.documentElement.classList.add('dark');
-                            } else {
-                                iframe.contentDocument.documentElement.classList.remove('dark');
-                            }
                         }
                     } catch (e) {}
                 }
