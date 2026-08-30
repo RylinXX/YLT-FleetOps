@@ -23,6 +23,11 @@ def load_data():
         DB = json.load(f)
     print(f"[FleetMaster] Loaded {len(DB.get('transport_records', []))} records into memory.")
 
+try:
+    load_data()
+except Exception as e:
+    print(f"[FleetMaster Warning] Failed to load data on startup: {e}")
+
 def save_current_data():
     with open(CURRENT_DATA_FILE, 'w', encoding='utf-8') as f:
         json.dump(DB, f, ensure_ascii=False, indent=2)
