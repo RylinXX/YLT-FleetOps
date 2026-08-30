@@ -180,3 +180,85 @@ html.dark .glass-card-hover:hover {
   background-color: var(--modal-sub-bg) !important;
   border: 1px solid var(--modal-sub-border) !important;
 }
+
+/* Utilities */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+.touch-scroll {
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* ============================================================ */
+/* Mobile & Tablet Responsive Optimizations (<= 768px & <= 640px) */
+/* ============================================================ */
+@media (max-width: 768px) {
+  /* Chart Heights */
+  #chart-daily-trend {
+    height: 250px !important;
+  }
+  #chart-driver-ranking {
+    height: 270px !important;
+  }
+  #chart-site-breakdown, 
+  #chart-vehicle-stats, 
+  #chart-fair-scatter {
+    height: 240px !important;
+  }
+  #chart-daily-driver-bars {
+    height: 270px !important;
+  }
+  #chart-driver-timeline, 
+  #chart-driver-donut {
+    height: 200px !important;
+  }
+
+  /* Table styling on mobile */
+  .custom-table th, 
+  .custom-table td {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    font-size: 11px !important;
+  }
+
+  /* Glass cards padding */
+  .glass-card {
+    border-radius: 14px !important;
+  }
+
+  /* Modal responsiveness */
+  .theme-modal {
+    max-height: 94vh !important;
+    margin: 8px !important;
+    border-radius: 20px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Header & Navigation */
+  header {
+    padding: 8px 12px !important;
+    gap: 8px !important;
+  }
+
+  /* Period selector */
+  .period-selector-btn {
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+  }
+
+  /* Reduce spacing on small screens */
+  main {
+    padding: 10px 8px !important;
+  }
+
+  /* Tables horizontal scroll touch wrapper */
+  .table-responsive-wrapper {
+    margin: 0 -8px;
+    padding: 0 8px;
+  }
+}
