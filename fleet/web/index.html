@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FleetMaster | 智能车队人员人效与智慧运维管理系统</title>
+  
+  <!-- Synchronous Theme Initializer (Pre-Paint) -->
+  <script>
+    (function() {
+      let theme = 'light';
+      try {
+        if (window.parent && window.parent !== window && window.parent.document) {
+          const pTheme = window.parent.document.documentElement.getAttribute('data-theme');
+          if (pTheme) theme = pTheme;
+        } else {
+          const sTheme = sessionStorage.getItem('theme') || localStorage.getItem('theme');
+          if (sTheme) theme = sTheme;
+        }
+      } catch(e) {}
+      
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- ECharts 5 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+  
+  <!-- Vue 3 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css?v=2.6">
+</head>
+<body class="min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white transition-colors duration-200">
+
+  <div id="app" v-cloak class="flex-1 flex flex-col">
+    
+    <!-- Top Bar -->
+    <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4 transition-colors">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/20">
+          <i data-lucide="truck" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-lg lg:text-xl tracking-tight text-slate-900 dark:text-white">FleetMaster</h1>
+            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">人效&运维系统</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">基于 7-8月分月统计与费用补全实时核算引擎</p>
+        </div>
+      </div>
+
+      <!-- Center Period Selector (仅在人效排名与数据大屏看板中生效并展示) -->
+      <div 
+        v-show="currentTab === 'rankings' || currentTab === 'overview'" 
+        class="flex items-center bg-slate-100 dark:bg-slate-950/70 p-1 rounded-xl border border-slate-200 dark:border-slate-800 transition-all">
+        <button 
+          @click="setPeriod('all')"
+          :class="currentPeriod === 'all' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+          class="px-3.5 py-1.5 text-xs rounded-lg transition-all flex items-center gap-1.5">
+          <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+          7-8月全期
+        </button>
+        <button 
+          @click="setPeriod('july')"
+          :class="currentPeriod === 'july' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+          class="px-3.5 py-1.5 text-xs rounded-lg transition-all">
+          7月统计
+        </button>
+        <button 
+          @click="setPeriod('aug')"
+          :class="currentPeriod === 'aug' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+          class="px-3.5 py-1.5 text-xs rounded-lg transition-all">
+          8月统计
+        </button>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2">
+        <button 
+          @click="openAddRecordModal"
+          class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center gap-1.5 shadow-md shadow-emerald-600/20">
+          <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+          <span>录入出车</span>
+        </button>
+
+        <button 
+          @click="exportToExcel"
+          class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="download" class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400"></i>
+          <span>导出报表</span>
+        </button>
+
+        <button 
+          @click="resetToBaseline"
+          title="重置为初始Excel基准数据"
+          class="p-2 rounded-lg bg-white hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-900/30 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 border border-slate-300 dark:border-slate-700 transition shadow-sm">
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Navigation Tabs -->
+    <div class="bg-white/80 dark:bg-slate-900/40 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 px-4 lg:px-8 flex items-center gap-2 overflow-x-auto transition-colors">
+      <button 
+        @click="currentTab = 'overview'"
+        :class="currentTab === 'overview' ? 'border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-500/10' : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+        class="py-3 px-4 text-sm border-b-2 transition flex items-center gap-2 whitespace-nowrap">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+        <span>数据大屏与看板</span>
+      </button>
+
+      <button 
+        @click="currentTab = 'daily'"
+        :class="currentTab === 'daily' ? 'border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-500/10' : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+        class="py-3 px-4 text-sm border-b-2 transition flex items-center gap-2 whitespace-nowrap">
+        <i data-lucide="calendar-check" class="w-4 h-4 text-amber-500"></i>
+        <span>每日战报与标车排名</span>
+        <span class="px-1.5 py-0.5 text-[10px] rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-bold">新功能</span>
+      </button>
+
+      <button 
+        @click="currentTab = 'rankings'"
+        :class="currentTab === 'rankings' ? 'border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-500/10' : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+        class="py-3 px-4 text-sm border-b-2 transition flex items-center gap-2 whitespace-nowrap">
+        <i data-lucide="award" class="w-4 h-4"></i>
+        <span>司机公平人效排名</span>
+        <span class="px-1.5 py-0.5 text-[10px] rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono border border-slate-200 dark:border-slate-700">{{ rankingsData.rankings?.length || 0 }}</span>
+      </button>
+
+      <button 
+        @click="currentTab = 'pricing'"
+        :class="currentTab === 'pricing' ? 'border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-500/10' : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+        class="py-3 px-4 text-sm border-b-2 transition flex items-center gap-2 whitespace-nowrap">
+        <i data-lucide="badge-dollar-sign" class="w-4 h-4"></i>
+        <span>土点产值规则 & 调价重算</span>
+        <span class="px-1.5 py-0.5 text-[10px] rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-mono">55规则</span>
+      </button>
+
+      <button 
+        @click="currentTab = 'records'"
+        :class="currentTab === 'records' ? 'border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-500/10' : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+        class="py-3 px-4 text-sm border-b-2 transition flex items-center gap-2 whitespace-nowrap">
+        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+        <span>出车流水明细台账</span>
+        <span class="px-1.5 py-0.5 text-[10px] rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 font-mono">{{ recordsData.total || 0 }}</span>
+      </button>
+
+      <button 
+        @click="currentTab = 'vehicles'"
+        :class="currentTab === 'vehicles' ? 'border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-500/10' : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+        class="py-3 px-4 text-sm border-b-2 transition flex items-center gap-2 whitespace-nowrap">
+        <i data-lucide="car" class="w-4 h-4"></i>
+        <span>车辆台账与排班规则</span>
+      </button>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-4 lg:p-8 max-w-[1600px] w-full mx-auto space-y-6">
+
+      <!-- ============================================================ -->
+      <!-- TAB 1: 数据大屏与综合看板 -->
+      <!-- ============================================================ -->
+      <section v-if="currentTab === 'overview'" class="space-y-6 animate-fadeIn">
+        
+        <!-- KPI Metric Cards Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <!-- 1. Total Revenue -->
+          <div class="glass-card glass-card-hover rounded-2xl p-4 flex flex-col justify-between border-l-4 border-l-amber-500">
+            <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+              <span class="text-xs font-semibold">阶段总产值</span>
+              <div class="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                <i data-lucide="coins" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div>
+              <div class="text-xl lg:text-2xl font-extrabold font-mono-nums text-amber-600 dark:text-amber-400">
+                ¥{{ overviewData.kpis.total_revenue != null ? overviewData.kpis.total_revenue.toLocaleString() : '-' }}
+              </div>
+              <div class="text-[11px] text-slate-600 dark:text-slate-400 mt-1 flex items-center justify-between">
+                <span>日均: <b class="text-slate-900 dark:text-white font-mono">¥{{ Math.round(overviewData.kpis.daily_avg_revenue || 0).toLocaleString() }}</b></span>
+                <span class="text-emerald-600 dark:text-emerald-400 font-bold">100% 计价</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Total Trips -->
+          <div class="glass-card glass-card-hover rounded-2xl p-4 flex flex-col justify-between border-l-4 border-l-indigo-500">
+            <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+              <span class="text-xs font-semibold">总确认车次</span>
+              <div class="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                <i data-lucide="truck" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div>
+              <div class="text-xl lg:text-2xl font-extrabold font-mono-nums text-slate-900 dark:text-white">
+                {{ overviewData.kpis.total_trips != null ? overviewData.kpis.total_trips.toLocaleString() : '-' }} <span class="text-xs font-normal text-slate-500">车</span>
+              </div>
+              <div class="text-[11px] text-slate-600 dark:text-slate-400 mt-1 flex items-center justify-between">
+                <span>日均出车: <b class="text-indigo-600 dark:text-indigo-400 font-bold">{{ overviewData.kpis.daily_avg_trips != null ? overviewData.kpis.daily_avg_trips.toFixed(1) : '-' }} 车/天</b></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Total Man Days -->
+          <div class="glass-card glass-card-hover rounded-2xl p-4 flex flex-col justify-between border-l-4 border-l-emerald-500">
+            <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+              <span class="text-xs font-semibold">出勤有效人天</span>
+              <div class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                <i data-lucide="users" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div>
+              <div class="text-xl lg:text-2xl font-extrabold font-mono-nums text-slate-900 dark:text-white">
+                {{ overviewData.kpis.total_man_days ?? '-' }} <span class="text-xs font-normal text-slate-500">人天</span>
+              </div>
+              <div class="text-[11px] text-slate-600 dark:text-slate-400 mt-1 flex items-center justify-between">
+                <span>在岗司机: <b class="text-emerald-600 dark:text-emerald-400 font-bold">{{ overviewData.kpis.active_drivers ?? '-' }} 人</b></span>
+                <span>跨度: <b class="text-slate-900 dark:text-white font-mono">{{ overviewData.kpis.unique_dates ?? '-' }}</b> 天</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Avg Price Per Trip -->
+          <div class="glass-card glass-card-hover rounded-2xl p-4 flex flex-col justify-between border-l-4 border-l-purple-500">
+            <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+              <span class="text-xs font-semibold">车均综合单产</span>
+              <div class="p-1.5 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                <i data-lucide="receipt" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div>
+              <div class="text-xl lg:text-2xl font-extrabold font-mono-nums text-purple-600 dark:text-purple-400">
+                ¥{{ overviewData.kpis.avg_price_per_trip != null ? overviewData.kpis.avg_price_per_trip.toFixed(2) : '-' }}
+              </div>
+              <div class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">
+                <span>每车平均产值收入</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Avg Revenue Per Driver -->
+          <div class="glass-card glass-card-hover rounded-2xl p-4 flex flex-col justify-between border-l-4 border-l-cyan-500">
+            <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+              <span class="text-xs font-semibold">人均累计产值</span>
+              <div class="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
+                <i data-lucide="user-check" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div>
+              <div class="text-xl lg:text-2xl font-extrabold font-mono-nums text-cyan-600 dark:text-cyan-400">
+                ¥{{ overviewData.kpis.avg_revenue_per_driver != null ? Math.round(overviewData.kpis.avg_revenue_per_driver).toLocaleString() : '-' }}
+              </div>
+              <div class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">
+                <span>人均出勤: <b class="text-slate-900 dark:text-white font-mono">{{ overviewData.kpis.active_drivers ? (overviewData.kpis.total_man_days / overviewData.kpis.active_drivers).toFixed(1) : '-' }}</b> 天</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6. Active Vehicles -->
+          <div class="glass-card glass-card-hover rounded-2xl p-4 flex flex-col justify-between border-l-4 border-l-rose-500">
+            <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+              <span class="text-xs font-semibold">投入运营车辆</span>
+              <div class="p-1.5 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                <i data-lucide="car-front" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div>
+              <div class="text-xl lg:text-2xl font-extrabold font-mono-nums text-slate-900 dark:text-white">
+                {{ overviewData.kpis.active_vehicles ?? '-' }} <span class="text-xs font-normal text-slate-500">辆</span>
+              </div>
+              <div class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">
+                <span>单车均产: <b class="text-slate-900 dark:text-white font-mono">¥{{ overviewData.kpis.active_vehicles ? Math.round(overviewData.kpis.total_revenue / overviewData.kpis.active_vehicles).toLocaleString() : '-' }}</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 1 Charts: Daily Trends & Driver Output Ranking -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 glass-card rounded-2xl p-5 flex flex-col">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+                  <i data-lucide="trending-up" class="w-4 h-4 text-indigo-500"></i>
+                  每日出车车次与产值双轴走势
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">包含每日出车车次柱状图、产值折线图及 7 日平滑均线</p>
+              </div>
+            </div>
+            <div id="chart-daily-trend" class="w-full h-80"></div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 flex flex-col">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+                  <i data-lucide="trophy" class="w-4 h-4 text-amber-500"></i>
+                  司机产值贡献 Top 10
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">按累计完成产值降序排列</p>
+              </div>
+            </div>
+            <div id="chart-driver-ranking" class="w-full h-80"></div>
+          </div>
+        </div>
+
+        <!-- Row 2 Charts: Soil Points, Vehicles & Fair Scatter -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="glass-card rounded-2xl p-5 flex flex-col">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+                  <i data-lucide="pie-chart" class="w-4 h-4 text-purple-500"></i>
+                  核心土点产值贡献分布
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">京首建、鲁矿、建工、天宇等核心去向</p>
+              </div>
+            </div>
+            <div id="chart-site-breakdown" class="w-full h-72"></div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 flex flex-col">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+                  <i data-lucide="activity" class="w-4 h-4 text-cyan-500"></i>
+                  各车辆累计产值与单车日均
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">车牌号效能与利用率透视</p>
+              </div>
+            </div>
+            <div id="chart-vehicle-stats" class="w-full h-72"></div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 flex flex-col">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+                  <i data-lucide="scale" class="w-4 h-4 text-emerald-500"></i>
+                  公平人效指数分布象限
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">出勤天数 vs 相对人均产值指数</p>
+              </div>
+            </div>
+            <div id="chart-fair-scatter" class="w-full h-72"></div>
+          </div>
+        </div>
+
+      </section>
+
+      
+      <!-- ============================================================ -->
+      <!-- TAB: 每日战报与标车等效排名 -->
+      <!-- ============================================================ -->
+      <section v-if="currentTab === 'daily'" class="space-y-6 animate-fadeIn">
+        
+        <!-- Date Selector & Benchmark Toolbar -->
+        <div class="glass-card rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 border-l-4 border-l-amber-500">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1.5">
+              <button 
+                @click="prevDailyDate"
+                title="查看前一天"
+                class="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-xs font-semibold flex items-center gap-1 transition shadow-sm">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                <span>前一天</span>
+              </button>
+
+              <select 
+                v-model="selectedDailyDate"
+                @change="fetchDailyRanking(selectedDailyDate)"
+                class="theme-input text-xs font-bold font-mono rounded-xl px-3 py-1.5 focus:outline-none shadow-sm cursor-pointer">
+                <option v-for="d in dailyRankingData.available_dates" :key="d" :value="d">{{ d }} (出车战报)</option>
+              </select>
+
+              <button 
+                @click="nextDailyDate"
+                title="查看后一天"
+                class="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-xs font-semibold flex items-center gap-1 transition shadow-sm">
+                <span>后一天</span>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <button 
+              @click="fetchDailyRanking(dailyRankingData.available_dates[0])"
+              class="px-3 py-1.5 text-xs font-medium rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 transition">
+              最新一天
+            </button>
+          </div>
+
+          <div class="flex items-center gap-3 text-xs">
+            <div class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>对冲基准：<b class="text-slate-900 dark:text-white font-mono">1.0 标车 = 250 元</b> (京首建/标准土点)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Daily KPI Summary Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <!-- MVP Daily Champion -->
+          <div class="glass-card glass-card-hover rounded-2xl p-4 flex flex-col justify-between border-l-4 border-l-amber-500">
+            <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
+              <span class="text-xs font-semibold">当日冠军 (MVP)</span>
+              <div class="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                <i data-lucide="trophy" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div>
+              <div class="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                <span>{{ dailyRankingData.daily_summary.top_driver || '无' }}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] bg-amber-400 text-slate-950 font-bold font-mono">
+                  {{ dailyRankingData.daily_summary.max_standard_trips }} 标车
+                </span>
+              </div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                <span>单日最高战绩领跑全队</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Drivers & Actual Trips -->
+          <div class="glass-card glass-card-hover rounded-2xl p-4 flex flex-col justify-between border-l-4 border-l-indigo-500">
+            <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
+              <span class="text-xs font-semibold">出勤司机 & 实际车次</span>
+              <div class="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                <i data-lucide="users" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div>
+              <div class="text-xl font-extrabold font-mono-nums text-slate-900 dark:text-white">
+                {{ dailyRankingData.daily_summary.active_drivers || 0 }} <span class="text-xs font-normal text-slate-500">人在岗</span>
+                <span class="text-sm text-indigo-600 dark:text-indigo-400 font-normal ml-2">({{ dailyRankingData.daily_summary.total_actual_trips || 0 }} 实际车)</span>
+              </div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                <span>包含内倒与外运所有任务</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total Standard Equivalent Trips -->
+          <div class="glass-card glass-card-hover rounded-2xl p-4 flex flex-col justify-between border-l-4 border-l-emerald-500">
+            <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
+              <span class="text-xs font-semibold">当日折算总标车</span>
+              <div class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                <i data-lucide="zap" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div>
+              <div class="text-xl font-extrabold font-mono-nums text-emerald-600 dark:text-emerald-400">
+                {{ dailyRankingData.daily_summary.total_standard_trips || 0 }} <span class="text-xs font-normal text-slate-500">标车</span>
+              </div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                <span>当日总产值: <b class="text-amber-600 dark:text-amber-400 font-mono">¥{{ dailyRankingData.daily_summary.total_amount?.toLocaleString() }}</b></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Average Standard Trips per Driver -->
+          <div class="glass-card glass-card-hover rounded-2xl p-4 flex flex-col justify-between border-l-4 border-l-purple-500">
+            <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
+              <span class="text-xs font-semibold">单日人均等效标车</span>
+              <div class="p-1.5 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                <i data-lucide="scale" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div>
+              <div class="text-xl font-extrabold font-mono-nums text-purple-600 dark:text-purple-400">
+                {{ dailyRankingData.daily_summary.avg_standard_trips || 0 }} <span class="text-xs font-normal text-slate-500">标车/人</span>
+              </div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                <span>人均产值: <b class="text-slate-900 dark:text-white font-mono">¥{{ Math.round(dailyRankingData.daily_summary.avg_amount || 0) }}</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Standard Trips Comparison Chart -->
+        <div class="glass-card rounded-2xl p-5 flex flex-col">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+                <i data-lucide="bar-chart-3" class="w-4 h-4 text-indigo-500"></i>
+                当日司机折算标车分布对比 (红色虚线为当日均值基准)
+              </h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                已自动对冲不同单价土点（例如内倒100元、京首建250元、三家店380元），统一按标准车衡量人效
+              </p>
+            </div>
+            <div class="flex items-center gap-2 text-xs font-semibold">
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>较高 (≥105%)</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>均值 (95~105%)</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>偏低 (<95%)</span>
+            </div>
+          </div>
+          <div id="chart-daily-driver-bars" class="w-full h-80"></div>
+        </div>
+
+        <!-- Daily Leaderboard Table Card -->
+        <div class="glass-card rounded-2xl overflow-hidden p-4 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="relative">
+                <input 
+                  v-model="dailyDriverSearch"
+                  type="text" 
+                  placeholder="搜索司机 / 车牌..."
+                  class="theme-input rounded-xl px-3.5 py-1.5 pl-9 w-48 text-xs focus:outline-none transition">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2"></i>
+              </div>
+
+              <div class="flex items-center bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
+                <button 
+                  @click="dailyRatingFilter = 'all'"
+                  :class="dailyRatingFilter === 'all' ? 'bg-indigo-600 text-white font-bold shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+                  class="px-2.5 py-1 rounded-lg transition">全部</button>
+                <button 
+                  @click="dailyRatingFilter = '较高'"
+                  :class="dailyRatingFilter === '较高' ? 'bg-emerald-600 text-white font-bold shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400'"
+                  class="px-2.5 py-1 rounded-lg transition">较高</button>
+                <button 
+                  @click="dailyRatingFilter = '均值'"
+                  :class="dailyRatingFilter === '均值' ? 'bg-indigo-600 text-white font-bold shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400'"
+                  class="px-2.5 py-1 rounded-lg transition">均值</button>
+                <button 
+                  @click="dailyRatingFilter = '偏低'"
+                  :class="dailyRatingFilter === '偏低' ? 'bg-amber-600 text-white font-bold shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400'"
+                  class="px-2.5 py-1 rounded-lg transition">偏低</button>
+              </div>
+            </div>
+
+            <div class="text-xs text-slate-500 dark:text-slate-400">
+              <span>日期：<b class="text-indigo-600 dark:text-indigo-400 font-mono">{{ dailyRankingData.date }}</b> | 出勤司机：<b class="text-slate-900 dark:text-white font-mono">{{ filteredDailyRankings.length }}</b> 位</span>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse custom-table">
+              <thead>
+                <tr class="uppercase tracking-wider">
+                  <th class="py-3 px-3 text-center whitespace-nowrap">当日排名</th>
+                  <th class="py-3 px-3 whitespace-nowrap">司机姓名</th>
+                  <th class="py-3 px-3 whitespace-nowrap">驾驶车辆</th>
+                  <th class="py-3 px-3">实际出车明细与对冲构成</th>
+                  <th class="py-3 px-3 text-right whitespace-nowrap">实际车次</th>
+                  <th class="py-3 px-3 text-right whitespace-nowrap">折算等效标车</th>
+                  <th class="py-3 px-3 text-right whitespace-nowrap">当日产值金额</th>
+                  <th class="py-3 px-3 text-center whitespace-nowrap">相对当日均值</th>
+                  <th class="py-3 px-3 text-center whitespace-nowrap">单日评级</th>
+                  <th class="py-3 px-3 text-center whitespace-nowrap">操作</th>
+                </tr>
+              </thead>
+              <tbody class="font-mono-nums">
+                <tr v-for="r in filteredDailyRankings" :key="r.driver" class="transition hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                  <td class="py-3 px-3 text-center whitespace-nowrap">
+                    <span 
+                      v-if="r.rank === 1"
+                      class="w-6 h-6 rounded-full bg-amber-400 text-slate-950 font-bold inline-flex items-center justify-center text-xs shadow-md shadow-amber-400/30">1</span>
+                    <span 
+                      v-else-if="r.rank === 2"
+                      class="w-6 h-6 rounded-full bg-slate-300 text-slate-950 font-bold inline-flex items-center justify-center text-xs">2</span>
+                    <span 
+                      v-else-if="r.rank === 3"
+                      class="w-6 h-6 rounded-full bg-amber-600 text-white font-bold inline-flex items-center justify-center text-xs">3</span>
+                    <span v-else class="text-slate-500 dark:text-slate-400 font-medium">{{ r.rank }}</span>
+                  </td>
+
+                  <td class="py-3 px-3 whitespace-nowrap">
+                    <div class="flex items-center gap-2 font-sans font-bold text-slate-900 dark:text-white">
+                      <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-indigo-600 to-blue-600 flex items-center justify-center text-[11px] text-white font-bold flex-shrink-0 shadow-sm">
+                        {{ r.driver.slice(0, 1) }}
+                      </div>
+                      <span class="whitespace-nowrap">{{ r.driver }}</span>
+                    </div>
+                  </td>
+
+                  <td class="py-3 px-3 font-mono text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                    {{ r.vehicle_display }}
+                  </td>
+
+                  <td class="py-3 px-3 font-sans min-w-[280px]">
+                    <div class="flex flex-wrap gap-1.5">
+                      <span 
+                        v-for="(det, didx) in r.details" 
+                        :key="didx"
+                        class="px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-700 dark:text-slate-300 inline-flex items-center gap-1 whitespace-nowrap">
+                        <b>{{ det.site_label }}</b>
+                        <span class="text-indigo-600 dark:text-indigo-400 font-mono font-bold">{{ det.trips }}车</span>
+                        <span class="text-slate-400 font-mono text-[10px]">(¥{{ det.amount }})</span>
+                      </span>
+                    </div>
+                  </td>
+
+                  <td class="py-3 px-3 text-right font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                    {{ r.trips_actual }} 车
+                  </td>
+
+                  <td class="py-3 px-3 text-right whitespace-nowrap">
+                    <span class="inline-block whitespace-nowrap text-xs md:text-sm font-extrabold font-mono text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20 shadow-sm">
+                      {{ r.standard_trips }} 标车
+                    </span>
+                  </td>
+
+                  <td class="py-3 px-3 text-right font-bold text-amber-600 dark:text-amber-400 font-mono whitespace-nowrap">
+                    ¥{{ r.total_amount?.toLocaleString() }}
+                  </td>
+
+                  <td class="py-3 px-3 text-center whitespace-nowrap">
+                    <span 
+                      class="font-mono font-bold text-xs"
+                      :class="r.vs_avg_percent >= 5.0 ? 'text-emerald-600 dark:text-emerald-400' : (r.vs_avg_percent <= -5.0 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-600 dark:text-slate-300')">
+                      {{ r.vs_avg_percent >= 0 ? '+' : '' }}{{ r.vs_avg_percent }}%
+                    </span>
+                  </td>
+
+                  <td class="py-3 px-3 text-center font-sans whitespace-nowrap">
+                    <span 
+                      v-if="r.tier === '较高'"
+                      class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 whitespace-nowrap">较高</span>
+                    <span 
+                      v-else-if="r.tier === '偏低'"
+                      class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 whitespace-nowrap">偏低</span>
+                    <span 
+                      v-else
+                      class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 whitespace-nowrap">均值</span>
+                  </td>
+
+                  <td class="py-3 px-3 text-center whitespace-nowrap">
+                    <button 
+                      @click="openDriverProfile(r.driver)"
+                      class="px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 text-[11px] font-sans font-medium transition inline-flex items-center justify-center gap-1">
+                      <i data-lucide="user-search" class="w-3.5 h-3.5"></i>
+                      <span>画像</span>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- ============================================================ -->
+      <!-- TAB 2: 司机公平人效排名与画像 -->
+      <!-- ============================================================ -->
+      <section v-if="currentTab === 'rankings'" class="space-y-6 animate-fadeIn">
+        
+        <!-- Filter Header -->
+        <div class="glass-card rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="relative">
+              <input 
+                v-model="driverSearch"
+                type="text" 
+                placeholder="搜索司机姓名..."
+                class="theme-input rounded-xl px-3.5 py-2 pl-9 w-48 text-xs focus:outline-none transition">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+            </div>
+
+            <div class="flex items-center bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
+              <button 
+                @click="driverRatingFilter = 'all'"
+                :class="driverRatingFilter === 'all' ? 'bg-indigo-600 text-white font-bold shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+                class="px-3 py-1 rounded-lg transition">全部评级</button>
+              <button 
+                @click="driverRatingFilter = '较高'"
+                :class="driverRatingFilter === '较高' ? 'bg-emerald-600 text-white font-bold shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400'"
+                class="px-3 py-1 rounded-lg transition">较高 (≥105%)</button>
+              <button 
+                @click="driverRatingFilter = '中等'"
+                :class="driverRatingFilter === '中等' ? 'bg-indigo-600 text-white font-bold shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400'"
+                class="px-3 py-1 rounded-lg transition">中等 (95~105%)</button>
+              <button 
+                @click="driverRatingFilter = '偏低'"
+                :class="driverRatingFilter === '偏低' ? 'bg-amber-600 text-white font-bold shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400'"
+                class="px-3 py-1 rounded-lg transition">偏低 (<95%)</button>
+            </div>
+          </div>
+
+          <div class="text-xs text-slate-500 dark:text-slate-400">
+            <span>当前周期：<b class="text-indigo-600 dark:text-indigo-400">{{ rankingsData.period }}</b> | 共有 <b class="text-slate-900 dark:text-white font-mono">{{ filteredRankings.length }}</b> 位司机</span>
+          </div>
+        </div>
+
+        <!-- Rankings Table Card -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse custom-table">
+              <thead>
+                <tr class="uppercase tracking-wider">
+                  <th class="py-3 px-4 text-center">排名</th>
+                  <th class="py-3 px-4">司机姓名</th>
+                  <th class="py-3 px-4 text-center">出勤天数</th>
+                  <th class="py-3 px-4 text-right">确认车次</th>
+                  <th class="py-3 px-4 text-right">日均车次</th>
+                  <th class="py-3 px-4 text-right">总产值 (元)</th>
+                  <th class="py-3 px-4 text-right">日均产值</th>
+                  <th class="py-3 px-4 text-center">公平人效指数</th>
+                  <th class="py-3 px-4 text-center">较高/中/低天数</th>
+                  <th class="py-3 px-4 text-center">总体评价</th>
+                  <th class="py-3 px-4 text-center">样本状态</th>
+                  <th class="py-3 px-4 text-center">操作</th>
+                </tr>
+              </thead>
+              <tbody class="font-mono-nums">
+                <tr v-for="(drv, idx) in filteredRankings" :key="drv.driver" class="transition">
+                  <td class="py-3 px-4 text-center">
+                    <span 
+                      v-if="drv.rank === 1"
+                      class="w-6 h-6 rounded-full bg-amber-400 text-slate-950 font-bold inline-flex items-center justify-center text-xs shadow-md shadow-amber-400/30">1</span>
+                    <span 
+                      v-else-if="drv.rank === 2"
+                      class="w-6 h-6 rounded-full bg-slate-300 text-slate-950 font-bold inline-flex items-center justify-center text-xs">2</span>
+                    <span 
+                      v-else-if="drv.rank === 3"
+                      class="w-6 h-6 rounded-full bg-amber-600 text-white font-bold inline-flex items-center justify-center text-xs">3</span>
+                    <span v-else class="text-slate-500 dark:text-slate-400 font-medium">{{ drv.rank }}</span>
+                  </td>
+
+                  <td class="py-3 px-4 whitespace-nowrap">
+                    <div class="flex items-center gap-2 font-sans font-bold text-slate-900 dark:text-white">
+                      <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-indigo-600 to-blue-600 flex items-center justify-center text-[11px] text-white font-bold flex-shrink-0 shadow-sm">
+                        {{ drv.driver.slice(0, 1) }}
+                      </div>
+                      <span class="whitespace-nowrap">{{ drv.driver }}</span>
+                    </div>
+                  </td>
+
+                  <td class="py-3 px-4 text-center text-slate-700 dark:text-slate-300">{{ drv.days }} 天</td>
+                  <td class="py-3 px-4 text-right font-bold text-slate-900 dark:text-slate-100">{{ drv.confirmed_trips }}</td>
+                  <td class="py-3 px-4 text-right text-slate-600 dark:text-slate-300">{{ drv.daily_avg_trips }}</td>
+                  <td class="py-3 px-4 text-right font-bold text-amber-600 dark:text-amber-400">¥{{ drv.total_amount?.toLocaleString() }}</td>
+                  <td class="py-3 px-4 text-right text-emerald-600 dark:text-emerald-400 font-medium">¥{{ Math.round(drv.daily_avg_amount || 0).toLocaleString() }}</td>
+
+                  <td class="py-3 px-4 text-center">
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80">
+                      <span class="font-bold font-mono" :class="drv.fair_perf_index >= 1.05 ? 'text-emerald-600 dark:text-emerald-400' : (drv.fair_perf_index < 0.95 ? 'text-amber-600 dark:text-amber-400' : 'text-indigo-600 dark:text-indigo-400')">
+                        {{ (drv.fair_perf_index * 100).toFixed(1) }}%
+                      </span>
+                    </div>
+                  </td>
+
+                  <td class="py-3 px-4 text-center text-[11px]">
+                    <span class="text-emerald-600 dark:text-emerald-400 font-bold">{{ drv.higher_days }}</span> / 
+                    <span class="text-indigo-600 dark:text-indigo-400 font-bold">{{ drv.medium_days }}</span> / 
+                    <span class="text-amber-600 dark:text-amber-400 font-bold">{{ drv.lower_days }}</span>
+                  </td>
+
+                  <td class="py-3 px-4 text-center font-sans">
+                    <span 
+                      v-if="drv.overall_eval === '较高'"
+                      class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">较高</span>
+                    <span 
+                      v-else-if="drv.overall_eval === '偏低'"
+                      class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30">偏低</span>
+                    <span 
+                      v-else
+                      class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30">中等</span>
+                  </td>
+
+                  <td class="py-3 px-4 text-center font-sans">
+                    <span :class="drv.sample_status === '正式' ? 'text-slate-600 dark:text-slate-300' : 'text-slate-400 italic'" class="text-[11px]">
+                      {{ drv.sample_status }}
+                    </span>
+                  </td>
+
+                  <td class="py-3 px-4 text-center">
+                    <button 
+                      @click="openDriverProfile(drv.driver)"
+                      class="px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 text-[11px] font-sans font-medium transition flex items-center justify-center gap-1 mx-auto">
+                      <i data-lucide="user-search" class="w-3.5 h-3.5"></i>
+                      <span>画像</span>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- TAB 3: 土点产值规则与在线调价重算 -->
+      <!-- ============================================================ -->
+      <section v-if="currentTab === 'pricing'" class="space-y-6 animate-fadeIn">
+        
+        <div class="glass-card rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4 border-l-4 border-l-amber-500">
+          <div>
+            <h3 class="font-extrabold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+              <i data-lucide="sliders" class="w-5 h-5 text-amber-500"></i>
+              土点产值规则在线配置与实时重算引擎
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              直接在下方表格修改任意土点的【产值单价】后点击“保存并重算”，系统将毫秒级重新计算全量 1,134 条出车记录及所有司机绩效与排行榜！
+            </p>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="text-right mr-2">
+              <div class="text-xs text-slate-500 dark:text-slate-400">重算后总产值</div>
+              <div class="text-xl font-extrabold font-mono-nums text-amber-600 dark:text-amber-400">
+                ¥{{ pricingTotalRevenue.toLocaleString() }}
+              </div>
+            </div>
+
+            <button 
+              @click="savePricingRules"
+              class="px-4 py-2 text-xs font-bold rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-lg shadow-amber-500/20">
+              <i data-lucide="save" class="w-4 h-4"></i>
+              <span>保存修改并全量重算</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl overflow-hidden p-4">
+          <div class="flex items-center justify-between mb-4">
+            <div class="relative w-64">
+              <input 
+                v-model="pricingSearch"
+                type="text" 
+                placeholder="搜索土点 / 物料 / 说明..."
+                class="theme-input rounded-xl px-3.5 py-2 pl-9 w-full text-xs focus:outline-none transition">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+            </div>
+            <div class="text-xs text-slate-500 dark:text-slate-400">
+              共 <b>{{ filteredPricingRules.length }}</b> 条规则（包含未来预设及当前生效规则）
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse custom-table">
+              <thead>
+                <tr class="uppercase tracking-wider">
+                  <th class="py-3 px-4">计价键</th>
+                  <th class="py-3 px-4">标准土点</th>
+                  <th class="py-3 px-4">适用物料</th>
+                  <th class="py-3 px-4 text-right w-36">产值单价 (元/车)</th>
+                  <th class="py-3 px-4 text-center">规则状态</th>
+                  <th class="py-3 px-4">定价依据 / 说明</th>
+                  <th class="py-3 px-4 text-right">确认车次</th>
+                  <th class="py-3 px-4 text-right">产值小计 (元)</th>
+                </tr>
+              </thead>
+              <tbody class="font-mono-nums">
+                <tr v-for="rule in filteredPricingRules" :key="rule.key" class="transition">
+                  <td class="py-3 px-4 font-mono font-medium text-slate-600 dark:text-slate-300">{{ rule.key }}</td>
+                  <td class="py-3 px-4 font-sans font-bold text-slate-900 dark:text-white">{{ rule.site }}</td>
+                  <td class="py-3 px-4 font-sans text-slate-600 dark:text-slate-300">{{ rule.material }}</td>
+                  
+                  <td class="py-3 px-4 text-right">
+                    <div class="flex items-center justify-end gap-1">
+                      <span class="text-slate-400">¥</span>
+                      <input 
+                        :value="rule.price"
+                        @change="onPriceInputChange(rule, $event)"
+                        type="number"
+                        step="10"
+                        min="0"
+                        class="w-24 text-right theme-input border-emerald-500/40 focus:border-emerald-500 text-emerald-600 dark:text-emerald-400 font-bold px-2 py-1 rounded-lg focus:outline-none transition">
+                    </div>
+                  </td>
+
+                  <td class="py-3 px-4 text-center font-sans">
+                    <span 
+                      :class="rule.status === '未来规则' ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'"
+                      class="px-2 py-0.5 rounded-full text-[10px] border font-bold">
+                      {{ rule.status }}
+                    </span>
+                  </td>
+
+                  <td class="py-3 px-4 font-sans text-slate-500 dark:text-slate-400 text-[11px] max-w-xs truncate" :title="rule.description">
+                    {{ rule.description }}
+                  </td>
+
+                  <td class="py-3 px-4 text-right font-bold text-slate-800 dark:text-slate-200">{{ rule.confirmed_trips }}</td>
+                  <td class="py-3 px-4 text-right font-bold text-amber-600 dark:text-amber-400">¥{{ rule.current_performance?.toLocaleString() }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- TAB 4: 出车流水台账与在线运维 -->
+      <!-- ============================================================ -->
+      <section v-if="currentTab === 'records'" class="space-y-6 animate-fadeIn">
+        
+        <div class="glass-card rounded-2xl p-5 space-y-4">
+          <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            <div>
+              <label class="text-[11px] text-slate-500 dark:text-slate-400 mb-1 block">驾驶司机</label>
+              <select 
+                v-model="recordFilters.driver"
+                @change="fetchRecords"
+                class="w-full theme-input text-xs rounded-xl px-3 py-2 focus:outline-none">
+                <option value="">全部司机</option>
+                <option v-for="d in driverOptions" :key="d" :value="d">{{ d }}</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-[11px] text-slate-500 dark:text-slate-400 mb-1 block">车牌号码</label>
+              <select 
+                v-model="recordFilters.vehicle"
+                @change="fetchRecords"
+                class="w-full theme-input text-xs rounded-xl px-3 py-2 focus:outline-none">
+                <option value="">全部车辆</option>
+                <option v-for="v in vehicleOptions" :key="v" :value="v">{{ v }}</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-[11px] text-slate-500 dark:text-slate-400 mb-1 block">土点名称</label>
+              <select 
+                v-model="recordFilters.site"
+                @change="fetchRecords"
+                class="w-full theme-input text-xs rounded-xl px-3 py-2 focus:outline-none">
+                <option value="">全部土点</option>
+                <option v-for="s in siteOptions" :key="s" :value="s">{{ s }}</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-[11px] text-slate-500 dark:text-slate-400 mb-1 block">起始日期</label>
+              <input 
+                v-model="recordFilters.start_date"
+                @change="fetchRecords"
+                type="date" 
+                class="w-full theme-input text-xs rounded-xl px-3 py-2 focus:outline-none">
+            </div>
+
+            <div>
+              <label class="text-[11px] text-slate-500 dark:text-slate-400 mb-1 block">截止日期</label>
+              <input 
+                v-model="recordFilters.end_date"
+                @change="fetchRecords"
+                type="date" 
+                class="w-full theme-input text-xs rounded-xl px-3 py-2 focus:outline-none">
+            </div>
+
+            <div>
+              <label class="text-[11px] text-slate-500 dark:text-slate-400 mb-1 block">关键字搜索</label>
+              <input 
+                v-model="recordFilters.keyword"
+                @input="fetchRecords"
+                type="text" 
+                placeholder="原始明细关键字..."
+                class="w-full theme-input text-xs rounded-xl px-3 py-2 focus:outline-none">
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-800 gap-3">
+            <div class="flex items-center gap-3 text-xs">
+              <span class="px-3 py-1 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 font-medium">
+                筛选出 <b class="font-mono text-slate-900 dark:text-white">{{ recordsData.total }}</b> 条明细
+              </span>
+              <span class="text-slate-500 dark:text-slate-400">
+                车次合计：<b class="text-slate-900 dark:text-white font-mono">{{ recordsData.summary?.total_trips || 0 }}</b> 车
+              </span>
+              <span class="text-slate-500 dark:text-slate-400">
+                产值合计：<b class="text-amber-600 dark:text-amber-400 font-mono">¥{{ recordsData.summary?.total_revenue?.toLocaleString() || 0 }}</b>
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button 
+                @click="resetRecordFilters"
+                class="px-3 py-1.5 text-xs text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition">
+                清空筛选
+              </button>
+              <button 
+                @click="openAddRecordModal"
+                class="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center gap-1.5 shadow-md shadow-emerald-600/20">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                <span>新增出车记录</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse custom-table">
+              <thead>
+                <tr class="uppercase tracking-wider">
+                  <th class="py-3 px-4 text-center">ID</th>
+                  <th class="py-3 px-4">日期</th>
+                  <th class="py-3 px-4">车牌号</th>
+                  <th class="py-3 px-4">司机</th>
+                  <th class="py-3 px-4">土点名称</th>
+                  <th class="py-3 px-4">物料类型</th>
+                  <th class="py-3 px-4 text-right">车次</th>
+                  <th class="py-3 px-4 text-right">单价 (元)</th>
+                  <th class="py-3 px-4 text-right">产值金额 (元)</th>
+                  <th class="py-3 px-4">原始片段</th>
+                  <th class="py-3 px-4 text-center">操作</th>
+                </tr>
+              </thead>
+              <tbody class="font-mono-nums">
+                <tr v-for="rec in recordsData.records" :key="rec.明细ID" class="transition">
+                  <td class="py-3 px-4 text-center text-slate-400 dark:text-slate-500 font-mono">#{{ rec.明细ID }}</td>
+                  <td class="py-3 px-4 text-slate-700 dark:text-slate-300">{{ rec.日期 }}</td>
+                  <td class="py-3 px-4 font-sans font-bold text-slate-900 dark:text-white">{{ rec.车牌号 }}</td>
+                  <td class="py-3 px-4 font-sans font-medium text-indigo-600 dark:text-indigo-400">{{ rec.司机 }}</td>
+                  <td class="py-3 px-4 font-sans text-slate-800 dark:text-slate-200">{{ rec.土点名称 }}</td>
+                  <td class="py-3 px-4 font-sans text-slate-500 dark:text-slate-400">{{ rec.物料 }}</td>
+                  <td class="py-3 px-4 text-right font-bold text-slate-900 dark:text-white">{{ rec.数量 }}</td>
+                  <td class="py-3 px-4 text-right text-emerald-600 dark:text-emerald-400 font-medium">¥{{ rec.绩效单价 }}</td>
+                  <td class="py-3 px-4 text-right font-bold text-amber-600 dark:text-amber-400">¥{{ rec.绩效得分?.toLocaleString() }}</td>
+                  <td class="py-3 px-4 font-sans text-slate-500 dark:text-slate-400 text-[11px] max-w-xs truncate" :title="rec.原始明细">
+                    {{ rec.解析片段 || rec.原始明细 }}
+                  </td>
+                  <td class="py-3 px-4 text-center font-sans">
+                    <div class="flex items-center justify-center gap-2">
+                      <button 
+                        @click="openEditRecordModal(rec)"
+                        title="编辑"
+                        class="p-1 rounded-md text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 transition">
+                        <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                      </button>
+                      <button 
+                        @click="deleteRecordItem(rec.明细ID)"
+                        title="删除"
+                        class="p-1 rounded-md text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 transition">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+            <div>
+              第 <b class="text-slate-900 dark:text-white">{{ recordsData.page }}</b> / {{ recordsData.total_pages }} 页 (共 {{ recordsData.total }} 条)
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button 
+                @click="changePage(recordsData.page - 1)"
+                :disabled="recordsData.page <= 1"
+                class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-white transition">
+                上一页
+              </button>
+              <button 
+                @click="changePage(recordsData.page + 1)"
+                :disabled="recordsData.page >= recordsData.total_pages"
+                class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-white transition">
+                下一页
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- TAB 5: 车辆台账与排班规则 -->
+      <!-- ============================================================ -->
+      <section v-if="currentTab === 'vehicles'" class="space-y-6 animate-fadeIn">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div v-for="v in vehiclesData.vehicles" :key="v.vehicle" class="glass-card glass-card-hover rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="px-2.5 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold font-mono text-sm">
+                  {{ v.vehicle }}
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                  出勤正常
+                </span>
+              </div>
+              
+              <div class="space-y-1.5 text-xs text-slate-700 dark:text-slate-300">
+                <div class="flex justify-between">
+                  <span class="text-slate-500 dark:text-slate-400">默认司机:</span>
+                  <span class="font-bold text-slate-900 dark:text-white">{{ v.default_driver }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500 dark:text-slate-400">累计出车:</span>
+                  <span class="font-bold text-slate-900 dark:text-white font-mono">{{ v.total_trips }} 车</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500 dark:text-slate-400">累计产值:</span>
+                  <span class="font-bold text-amber-600 dark:text-amber-400 font-mono">¥{{ v.total_revenue?.toLocaleString() }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500 dark:text-slate-400">出勤天数:</span>
+                  <span class="text-slate-800 dark:text-slate-200 font-mono">{{ v.active_days }} 天</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-3 mt-3 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between">
+              <span>参与驾驶人数: <b>{{ v.drivers_count }}</b> 人</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center gap-2">
+              <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+                <i data-lucide="calendar-clock" class="w-4 h-4 text-indigo-500"></i>
+                车辆—司机换班与日期例外规则表
+              </h3>
+              <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 font-mono">
+                共 {{ (vehiclesData.rules?.exceptions || []).length }} 条
+              </span>
+            </div>
+            <div class="flex items-center gap-2">
+              <input 
+                type="text" 
+                v-model="vehicleExceptionSearch" 
+                placeholder="🔍 快速搜索车牌 / 司机 / 日期..." 
+                class="px-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 w-56">
+            </div>
+          </div>
+          <div class="overflow-x-auto max-h-96">
+            <table class="w-full text-left text-xs border-collapse custom-table">
+              <thead>
+                <tr class="text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                  <th class="py-2.5 px-4">日期</th>
+                  <th class="py-2.5 px-4">车牌号</th>
+                  <th class="py-2.5 px-4">当日实际驾驶司机</th>
+                  <th class="py-2.5 px-4">换班与例外说明</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60">
+                <tr v-if="filteredVehicleExceptions.length === 0">
+                  <td colspan="4" class="py-8 text-center text-slate-400 dark:text-slate-500 text-xs">
+                    暂无匹配的换班与例外记录
+                  </td>
+                </tr>
+                <tr v-for="(ex, idx) in filteredVehicleExceptions" :key="idx" class="transition hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                  <td class="py-2 px-4 font-mono text-slate-600 dark:text-slate-300 font-medium">{{ ex.date }}</td>
+                  <td class="py-2 px-4 font-bold text-slate-900 dark:text-white font-mono">{{ ex.vehicle }}</td>
+                  <td class="py-2 px-4 text-indigo-600 dark:text-indigo-400 font-bold">{{ ex.driver }}</td>
+                  <td class="py-2 px-4 text-slate-500 dark:text-slate-400">{{ ex.note }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- ============================================================ -->
+    <!-- MODAL 1: 司机个人深度画像档案 -->
+    <!-- ============================================================ -->
+    <div v-if="activeDriverModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-sm animate-fadeIn">
+      <div class="theme-modal rounded-3xl border shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+        
+        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-blue-600 flex items-center justify-center text-white font-extrabold text-base shadow-lg shadow-indigo-500/20">
+              {{ driverProfile?.driver?.slice(0, 1) }}
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="font-extrabold text-lg text-slate-900 dark:text-white">{{ driverProfile?.driver }} - 人效深度画像档案</h3>
+                <span 
+                  :class="driverProfile?.kpis?.overall_eval === '较高' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30' : (driverProfile?.kpis?.overall_eval === '偏低' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30' : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/30')"
+                  class="px-2.5 py-0.5 rounded-full text-xs font-bold border">
+                  {{ driverProfile?.kpis?.overall_eval }}评级
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400">公平人效指数：<b class="text-emerald-600 dark:text-emerald-400 font-mono">{{ (driverProfile?.kpis?.fair_perf_index * 100).toFixed(1) }}%</b></p>
+            </div>
+          </div>
+          
+          <button @click="activeDriverModal = false" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div class="flex-1 p-6 space-y-6 overflow-y-auto">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="theme-modal-sub rounded-2xl p-3">
+              <div class="text-xs text-slate-500 dark:text-slate-400">总出车趟数</div>
+              <div class="text-lg font-bold font-mono text-slate-900 dark:text-white mt-1">{{ driverProfile?.kpis?.total_trips }} 车</div>
+            </div>
+            <div class="theme-modal-sub rounded-2xl p-3">
+              <div class="text-xs text-slate-500 dark:text-slate-400">总产生金额</div>
+              <div class="text-lg font-bold font-mono text-amber-600 dark:text-amber-400 mt-1">¥{{ driverProfile?.kpis?.total_revenue?.toLocaleString() }}</div>
+            </div>
+            <div class="theme-modal-sub rounded-2xl p-3">
+              <div class="text-xs text-slate-500 dark:text-slate-400">出勤天数</div>
+              <div class="text-lg font-bold font-mono text-indigo-600 dark:text-indigo-400 mt-1">{{ driverProfile?.kpis?.active_days }} 天</div>
+            </div>
+            <div class="theme-modal-sub rounded-2xl p-3">
+              <div class="text-xs text-slate-500 dark:text-slate-400">日均产值</div>
+              <div class="text-lg font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-1">¥{{ Math.round(driverProfile?.kpis?.daily_avg_revenue || 0) }}</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="theme-modal-sub rounded-2xl p-4">
+              <h4 class="font-bold text-xs text-slate-700 dark:text-slate-300 mb-2">每日产值与出车走势</h4>
+              <div id="chart-driver-timeline" class="w-full h-56"></div>
+            </div>
+            <div class="theme-modal-sub rounded-2xl p-4">
+              <h4 class="font-bold text-xs text-slate-700 dark:text-slate-300 mb-2">作业土点产值分布</h4>
+              <div id="chart-driver-donut" class="w-full h-56"></div>
+            </div>
+          </div>
+
+          <div class="theme-modal-sub rounded-2xl p-4 space-y-2">
+            <h4 class="font-bold text-xs text-slate-700 dark:text-slate-300">曾驾驶车辆记录</h4>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+              <div v-for="vh in driverProfile?.vehicle_history" :key="vh.vehicle" class="p-2.5 rounded-xl bg-white dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 text-xs">
+                <div class="font-bold text-slate-900 dark:text-white font-mono">{{ vh.vehicle }}</div>
+                <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                  出车: <b class="text-indigo-600 dark:text-indigo-400 font-mono">{{ vh.trips }}</b> 车 | 产值: <b class="text-amber-600 dark:text-amber-400 font-mono">¥{{ vh.revenue }}</b>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 flex justify-end">
+          <button @click="activeDriverModal = false" class="px-4 py-1.5 text-xs font-semibold rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white transition">
+            关闭
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- MODAL 2: 录入 / 编辑出车明细 -->
+    <!-- ============================================================ -->
+    <div v-if="recordModal.show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-sm animate-fadeIn">
+      <div class="theme-modal rounded-3xl border shadow-2xl max-w-lg w-full overflow-hidden">
+        
+        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 flex items-center justify-between">
+          <h3 class="font-bold text-base text-slate-900 dark:text-white">
+            {{ recordModal.isEdit ? '编辑出车明细' : '录入新出车记录' }}
+          </h3>
+          <button @click="recordModal.show = false" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <form @submit.prevent="submitRecordForm" class="p-6 space-y-4 text-xs">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-slate-500 dark:text-slate-400 mb-1 block">出车日期 *</label>
+              <input 
+                v-model="recordModal.form.日期"
+                type="date" required 
+                class="w-full theme-input rounded-xl px-3 py-2">
+            </div>
+            <div>
+              <label class="text-slate-500 dark:text-slate-400 mb-1 block">车牌号码 *</label>
+              <select 
+                v-model="recordModal.form.车牌号" required
+                class="w-full theme-input rounded-xl px-3 py-2">
+                <option v-for="v in vehicleOptions" :key="v" :value="v">{{ v }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-slate-500 dark:text-slate-400 mb-1 block">驾驶司机 *</label>
+              <select 
+                v-model="recordModal.form.司机" required
+                class="w-full theme-input rounded-xl px-3 py-2">
+                <option v-for="d in driverOptions" :key="d" :value="d">{{ d }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-slate-500 dark:text-slate-400 mb-1 block">土点名称 *</label>
+              <select 
+                v-model="recordModal.form.土点名称"
+                @change="autoMatchUnitPrice" required
+                class="w-full theme-input rounded-xl px-3 py-2">
+                <option v-for="s in siteOptions" :key="s" :value="s">{{ s }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="text-slate-500 dark:text-slate-400 mb-1 block">物料类型</label>
+              <input 
+                v-model="recordModal.form.物料"
+                @input="autoMatchUnitPrice"
+                type="text" 
+                class="w-full theme-input rounded-xl px-3 py-2">
+            </div>
+            <div>
+              <label class="text-slate-500 dark:text-slate-400 mb-1 block">出车车次 *</label>
+              <input 
+                v-model.number="recordModal.form.数量"
+                @input="autoMatchUnitPrice"
+                type="number" step="0.5" min="0.5" required 
+                class="w-full theme-input rounded-xl px-3 py-2">
+            </div>
+            <div>
+              <label class="text-slate-500 dark:text-slate-400 mb-1 block">单价 (元/车)</label>
+              <input 
+                v-model.number="recordModal.form.绩效单价"
+                @input="recordModal.form.绩效得分 = recordModal.form.数量 * recordModal.form.绩效单价"
+                type="number" step="10" required 
+                class="w-full theme-input rounded-xl px-3 py-2 text-emerald-600 dark:text-emerald-400 font-bold">
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <span class="text-slate-500 dark:text-slate-400">自动核算产值金额:</span>
+            <span class="text-lg font-bold font-mono text-amber-600 dark:text-amber-400">¥{{ (recordModal.form.数量 * recordModal.form.绩效单价).toFixed(2) }}</span>
+          </div>
+
+          <div class="flex justify-end gap-2 pt-2">
+            <button 
+              type="button" 
+              @click="recordModal.show = false" 
+              class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">
+              取消
+            </button>
+            <button 
+              type="submit" 
+              class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition">
+              确认提交
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div 
+      v-if="toast.show" 
+      class="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl shadow-2xl border text-xs font-semibold flex items-center gap-2 animate-bounce"
+      :class="toast.type === 'error' ? 'bg-rose-100 dark:bg-rose-900/90 text-rose-800 dark:text-rose-200 border-rose-300 dark:border-rose-700' : 'bg-emerald-100 dark:bg-emerald-900/90 text-emerald-800 dark:text-emerald-200 border-emerald-300 dark:border-emerald-700'">
+      <i data-lucide="check-circle" class="w-4 h-4"></i>
+      <span>{{ toast.message }}</span>
+    </div>
+
+  </div>
+
+  <!-- Main App Script -->
+  <script src="js/charts.js?v=2.6"></script>
+  <script src="js/app.js?v=2.6"></script>
+  <script>
+    lucide.createIcons();
+    setInterval(() => {
+      lucide.createIcons();
+    }, 1000);
+  </script>
+</body>
+</html>

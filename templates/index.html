@@ -582,6 +582,10 @@
         }
 
         /* 5. 系统参数配置 */
+                #panel-fleet.active {
+            display: block;
+            animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
         #panel-config.active {
             display: grid;
             grid-template-columns: 1fr;
@@ -1936,6 +1940,11 @@
                 <i data-lucide="file-spreadsheet" style="width:14px; height:14px;"></i>
                 <span>项目明细台账</span>
             </a>
+                        <a class="nav-item" id="menu-fleet" onclick="switchTab('fleet')">
+                <i data-lucide="users" style="width:14px; height:14px;"></i>
+                <span>人员人效与绩效</span>
+                <span style="font-size:10px; background:rgba(99,102,241,0.25); color:#a5b4fc; border:1px solid rgba(99,102,241,0.5); padding:1px 6px; border-radius:10px; margin-left:4px; font-weight:700;">分月</span>
+            </a>
             <a class="nav-item" id="menu-config" onclick="switchTab('config')">
                 <i data-lucide="settings" style="width:14px; height:14px;"></i>
                 <span>配置与存档</span>
@@ -2431,6 +2440,11 @@
 
 
         <!-- 📊 面板三: 系统参数配置 -->
+                <!-- ==================== 人员人效与车队智慧运维 (FleetMaster) ==================== -->
+        <section class="main-content" id="panel-fleet" style="padding:0; min-height:calc(100vh - 75px); overflow:hidden;">
+            <iframe id="fleet-iframe" src="/fleet/" style="width:100%; height:calc(100vh - 75px); border:none; border-radius:12px; background:transparent; display:block;" allow="fullscreen"></iframe>
+        </section>
+
         <section class="main-content" id="panel-config">
             <!-- 左侧：土点配置 -->
             <div class="glass-card" style="display:flex; flex-direction:column; min-height:0;">
@@ -2666,11 +2680,29 @@
         let currentTheme = sessionStorage.getItem('theme') || getAutoThemeByTime();
         document.documentElement.setAttribute('data-theme', currentTheme);
 
-        function toggleTheme() {
+                function toggleTheme() {
             currentTheme = currentTheme === 'light' ? 'dark' : 'light';
             document.documentElement.setAttribute('data-theme', currentTheme);
             sessionStorage.setItem('theme', currentTheme);
             updateThemeToggleUI();
+
+            // 实时同步主题至嵌入式 FleetMaster 人效系统
+            const fleetFrame = document.getElementById('fleet-iframe');
+            if (fleetFrame) {
+                try {
+                    if (fleetFrame.contentWindow) {
+                        fleetFrame.contentWindow.postMessage({ type: 'THEME_CHANGE', theme: currentTheme }, '*');
+                    }
+                    if (fleetFrame.contentDocument && fleetFrame.contentDocument.documentElement) {
+                        fleetFrame.contentDocument.documentElement.setAttribute('data-theme', currentTheme);
+                        if (currentTheme === 'dark') {
+                            fleetFrame.contentDocument.documentElement.classList.add('dark');
+                        } else {
+                            fleetFrame.contentDocument.documentElement.classList.remove('dark');
+                        }
+                    }
+                } catch (e) {}
+            }
             
             // 即时刷新 ECharts 图表与数据透视表颜色自适应
             if (currentSummaryData) {
@@ -2696,8 +2728,14 @@
             safeIcons();
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+                document.addEventListener('DOMContentLoaded', () => {
             updateThemeToggleUI();
+            const fleetFrame = document.getElementById('fleet-iframe');
+            if (fleetFrame && fleetFrame.contentWindow) {
+                try {
+                    fleetFrame.contentWindow.postMessage({ type: 'THEME_CHANGE', theme: currentTheme }, '*');
+                } catch (e) {}
+            }
         });
 
         // 确保 Lucide 已加载，若主 CDN 失败则动态重试
@@ -2803,7 +2841,7 @@
         let activeSiteFilter = "车辆账单";
         let currentSummaryData = null;
 
-        function switchTab(tab) {
+                function switchTab(tab) {
             currentTab = tab;
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.main-content').forEach(el => el.classList.remove('active'));
@@ -2828,6 +2866,26 @@
                 setTimeout(() => { if (typeof resizeSummaryCharts === 'function') resizeSummaryCharts(); }, 150);
             } else if (tab === 'ledger') {
                 refreshLedger();
+            } else if (tab === 'fleet') {
+                const iframe = document.getElementById('fleet-iframe');
+                if (iframe) {
+                    if (!iframe.src || iframe.src.endsWith('/templates/index.html') || iframe.src === 'about:blank') {
+                        iframe.src = '/fleet/';
+                    }
+                    try {
+                        if (iframe.contentWindow) {
+                            iframe.contentWindow.postMessage({ type: 'THEME_CHANGE', theme: currentTheme }, '*');
+                        }
+                        if (iframe.contentDocument && iframe.contentDocument.documentElement) {
+                            iframe.contentDocument.documentElement.setAttribute('data-theme', currentTheme);
+                            if (currentTheme === 'dark') {
+                                iframe.contentDocument.documentElement.classList.add('dark');
+                            } else {
+                                iframe.contentDocument.documentElement.classList.remove('dark');
+                            }
+                        }
+                    } catch (e) {}
+                }
             } else if (tab === 'config') {
                 refreshDumpSites().then(() => {
                     renderDumpSitesListConfig();

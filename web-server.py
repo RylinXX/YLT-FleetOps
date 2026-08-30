@@ -3113,6 +3113,21 @@ def index_page() -> str:
     else:
         raise HTTPException(status_code=404, detail="大屏前端 HTML 模板文件未找到，请确认 templates/index.html 存在。")
 
+
+# ----------------- 挂载 FleetMaster 人员人效与车队智慧运维模块 -----------------
+try:
+    import fleet_router
+    app.include_router(fleet_router.router)
+    print("[FleetMaster] 成功注册 /api/fleet 路由")
+    
+    FLEET_WEB_DIR = os.path.join(current_dir, "fleet", "web")
+    if os.path.exists(FLEET_WEB_DIR):
+        app.mount("/fleet", StaticFiles(directory=FLEET_WEB_DIR, html=True), name="fleet")
+        print(f"[FleetMaster] 成功挂载 /fleet 静态站点目录: {FLEET_WEB_DIR}")
+except Exception as e:
+    print(f"[FleetMaster Error] 注册 FleetMaster 失败: {e}")
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

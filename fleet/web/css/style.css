@@ -1,0 +1,182 @@
+/* FleetMaster High-Precision Dark & Light Mode Stylesheet */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  /* ---------------- Light Mode Base Palette (Default) ---------------- */
+  color-scheme: light;
+  --bg-color: #f0f5ff;
+  --bg-gradient: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+                 radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.1) 0px, transparent 50%),
+                 radial-gradient(at 50% 50%, #f0f5ff 0px, #e2e8f0 100%);
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-sub: #334155;
+  
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --card-border: #e2e8f0;
+  --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+  
+  --header-bg: rgba(255, 255, 255, 0.9);
+  --header-border: #e2e8f0;
+  
+  --table-th-bg: #f8fafc;
+  --table-th-text: #475569;
+  --table-border: #e2e8f0;
+  --table-hover: #f1f5f9;
+  --table-td-text: #1e293b;
+  
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1;
+  --input-text: #0f172a;
+  --input-placeholder: #94a3b8;
+  
+  --modal-bg: #ffffff;
+  --modal-border: #e2e8f0;
+  --modal-sub-bg: #f8fafc;
+  --modal-sub-border: #e2e8f0;
+}
+
+html.dark, html[data-theme="dark"] {
+  /* ---------------- Dark Mode Overrides ---------------- */
+  color-scheme: dark;
+  --bg-color: #060813;
+  --bg-gradient: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                 radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.1) 0px, transparent 50%),
+                 radial-gradient(at 50% 50%, #060813 0px, #0f172a 100%);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-sub: #cbd5e1;
+  
+  --card-bg: rgba(15, 23, 42, 0.65);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  
+  --header-bg: rgba(15, 23, 42, 0.75);
+  --header-border: rgba(51, 65, 85, 0.6);
+  
+  --table-th-bg: rgba(15, 23, 42, 0.95);
+  --table-th-text: #94a3b8;
+  --table-border: rgba(51, 65, 85, 0.6);
+  --table-hover: rgba(51, 65, 85, 0.4);
+  --table-td-text: #f8fafc;
+  
+  --input-bg: rgba(15, 23, 42, 0.9);
+  --input-border: rgba(51, 65, 85, 0.8);
+  --input-text: #ffffff;
+  --input-placeholder: #64748b;
+  
+  --modal-bg: #1e293b;
+  --modal-border: rgba(51, 65, 85, 0.8);
+  --modal-sub-bg: rgba(15, 23, 42, 0.8);
+  --modal-sub-border: rgba(51, 65, 85, 0.6);
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-color) !important;
+  background-image: var(--bg-gradient) !important;
+  background-attachment: fixed;
+  color: var(--text-main);
+  overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.font-mono-nums {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+/* Glassmorphism Cards */
+.glass-card {
+  background-color: var(--card-bg) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--card-border) !important;
+  box-shadow: var(--card-shadow) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card-hover:hover {
+  transform: translateY(-2px);
+  border-color: rgba(99, 102, 241, 0.4) !important;
+  box-shadow: 0 8px 24px -2px rgba(0, 0, 0, 0.1), 0 0 15px 0 rgba(99, 102, 241, 0.12) !important;
+}
+
+html.dark .glass-card-hover:hover {
+  box-shadow: 0 12px 36px -4px rgba(0, 0, 0, 0.4), 0 0 20px 0 rgba(99, 102, 241, 0.2) !important;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.6);
+}
+
+/* Table styles */
+.custom-table {
+  width: 100%;
+}
+
+.custom-table th {
+  background-color: var(--table-th-bg) !important;
+  color: var(--table-th-text) !important;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid var(--table-border) !important;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+.custom-table td {
+  border-bottom: 1px solid var(--table-border) !important;
+  color: var(--table-td-text) !important;
+  vertical-align: middle;
+}
+
+.custom-table tr:hover td {
+  background-color: var(--table-hover) !important;
+}
+
+/* Input elements */
+.theme-input {
+  background-color: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
+  color: var(--input-text) !important;
+}
+
+.theme-input::placeholder {
+  color: var(--input-placeholder) !important;
+}
+
+.theme-input:focus {
+  border-color: #6366f1 !important;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2) !important;
+}
+
+/* Modal styles */
+.theme-modal {
+  background-color: var(--modal-bg) !important;
+  border: 1px solid var(--modal-border) !important;
+  color: var(--text-main) !important;
+}
+
+.theme-modal-sub {
+  background-color: var(--modal-sub-bg) !important;
+  border: 1px solid var(--modal-sub-border) !important;
+}
