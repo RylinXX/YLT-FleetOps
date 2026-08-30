@@ -627,17 +627,8 @@ const app = createApp({
       } else if (newTab === 'vehicles') {
         fetchVehicles();
       }
-    // Watch tab change to resize charts and refresh lucide icons
-    watch(currentTab, (newTab) => {
-      nextTick(() => {
-        if (newTab === 'overview') {
-          renderOverviewCharts();
-        } else if (newTab === 'daily') {
-          renderDailyChart();
-        }
-        ChartEngine.resizeAll();
-        if (window.lucide) window.lucide.createIcons();
-      });
+      ChartEngine.resizeAll();
+      if (window.lucide) window.lucide.createIcons();
     });
 
     // ==========================================
