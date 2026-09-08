@@ -1,0 +1,40 @@
+[Unit]
+Description=Capcloud public information directory
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+DynamicUser=yes
+WorkingDirectory=/opt/capcloud-api/current
+ExecStart=/opt/capcloud-api/runtime/bin/node /opt/capcloud-api/current/server.mjs --production
+Environment=NODE_ENV=production
+Environment=PORT=5189
+Environment=PUBLIC_ORIGIN=https://ylt.etgq.com
+Environment=DATABASE_PATH=/var/lib/capcloud-api/directory.sqlite
+StateDirectory=capcloud-api
+StateDirectoryMode=0700
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=
+UMask=0027
+MemoryMax=512M
+TasksMax=64
+LimitNOFILE=4096
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

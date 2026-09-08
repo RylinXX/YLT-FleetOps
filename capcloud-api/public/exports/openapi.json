@@ -1,0 +1,860 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "北京市建筑垃圾公开查询接口（非官方整理）",
+    "version": "2026-09-05",
+    "description": "根据原站前端整理并匿名抽样核验。旧平台存在关停风险；本文件不是官方接口或服务承诺。"
+  },
+  "servers": [
+    {
+      "url": "http://ztxn.capcloud.com.cn:8080/dregs_service-dev"
+    }
+  ],
+  "paths": {
+    "/putOnRecords/trans-company-info/pageList/{page}/{limit}": {
+      "get": {
+        "operationId": "companies",
+        "summary": "北京市建筑垃圾运输企业名录",
+        "security": [],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "页码"
+          },
+          {
+            "name": "limit",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "default": 10
+            },
+            "description": "每页条数；20 为本地测试工具保护上限，不代表上游最大值"
+          },
+          {
+            "name": "companyName",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "运输企业名称；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "qxname",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "审批区；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "spdate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "审批时间；来源于原站 UI/前端，具体匹配边界待核验"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "须同时检查 success、code；HTTP 200 不代表业务成功。分页列表位于 result.rows 和 result.total。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": true
+                          }
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
+                      },
+                      "additionalProperties": true
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/putOnRecords/transport-permmit/pageList": {
+      "get": {
+        "operationId": "vehicles",
+        "summary": "建筑垃圾运输车辆信息",
+        "security": [],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "页码"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "default": 10
+            },
+            "description": "每页条数；20 为本地测试工具保护上限，不代表上游最大值"
+          },
+          {
+            "name": "platecodes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "车牌号；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "companyName",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "所属企业；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "fSection",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "审批区；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "startBeforeTime",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2} 00:00:00$"
+            },
+            "description": "许可开始时间 · 起；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "startAfterTime",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2} 00:00:00$"
+            },
+            "description": "许可开始时间 · 止；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "endBeforeTime",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2} 00:00:00$"
+            },
+            "description": "许可结束时间 · 起；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "endAfterTime",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2} 00:00:00$"
+            },
+            "description": "许可结束时间 · 止；来源于原站 UI/前端，具体匹配边界待核验"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "须同时检查 success、code；HTTP 200 不代表业务成功。分页列表位于 result.rows 和 result.total。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": true
+                          }
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
+                      },
+                      "additionalProperties": true
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/putOnRecords/trans-company-info/pageListEnergy/{page}/{limit}": {
+      "get": {
+        "operationId": "energy-companies",
+        "summary": "新能源建筑垃圾运输企业名录",
+        "security": [],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "页码"
+          },
+          {
+            "name": "limit",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "default": 10
+            },
+            "description": "每页条数；20 为本地测试工具保护上限，不代表上游最大值"
+          },
+          {
+            "name": "companyName",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "运输企业名称；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "qxname",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "审批区；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "spdate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "审批时间；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "isNewEnergyComp",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ],
+              "default": "1"
+            },
+            "description": "对应截图入口的固定查询条件"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "须同时检查 success、code；HTTP 200 不代表业务成功。分页列表位于 result.rows 和 result.total。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": true
+                          }
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
+                      },
+                      "additionalProperties": true
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/putOnRecords/transport-permmit/pageListEnergy": {
+      "get": {
+        "operationId": "energy-vehicles",
+        "summary": "新能源建筑垃圾运输车辆信息",
+        "security": [],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "页码"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "default": 10
+            },
+            "description": "每页条数；20 为本地测试工具保护上限，不代表上游最大值"
+          },
+          {
+            "name": "platecodes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "车牌号；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "companyName",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "所属企业；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "fSection",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "审批区；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "newEnergyType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "氢燃料",
+                "电动"
+              ]
+            },
+            "description": "新能源类型；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "startBeforeTime",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2} 00:00:00$"
+            },
+            "description": "许可开始时间 · 起；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "startAfterTime",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2} 00:00:00$"
+            },
+            "description": "许可开始时间 · 止；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "endBeforeTime",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2} 00:00:00$"
+            },
+            "description": "许可结束时间 · 起；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "endAfterTime",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2} 00:00:00$"
+            },
+            "description": "许可结束时间 · 止；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "isNewEnergyCar",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ],
+              "default": "1"
+            },
+            "description": "对应截图入口的固定查询条件"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "须同时检查 success、code；HTTP 200 不代表业务成功。分页列表位于 result.rows 和 result.total。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": true
+                          }
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
+                      },
+                      "additionalProperties": true
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/putOnRecords/unijz-unit-absorptive/pageListNoToken/{page}/{limit}": {
+      "get": {
+        "operationId": "disposal-sites",
+        "summary": "建筑垃圾消纳场、临时处置点信息",
+        "security": [],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "页码"
+          },
+          {
+            "name": "limit",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "default": 10
+            },
+            "description": "每页条数；20 为本地测试工具保护上限，不代表上游最大值"
+          },
+          {
+            "name": "disposalname",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "场所名称；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "area",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "审批区；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "已通过"
+              ]
+            },
+            "description": "审核状态；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1",
+                "3",
+                "11",
+                "4",
+                "5"
+              ]
+            },
+            "description": "场所类型；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "recordstarttime",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2} 00:00:00$"
+            },
+            "description": "备案开始时间；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "recordendtime",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2} 00:00:00$"
+            },
+            "description": "备案结束时间；来源于原站 UI/前端，具体匹配边界待核验"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "须同时检查 success、code；HTTP 200 不代表业务成功。分页列表位于 result.rows 和 result.total。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": true
+                          }
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
+                      },
+                      "additionalProperties": true
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/putOnRecords/unijz-unit-comprehensive/pageListNoToken/{page}/{limit}": {
+      "get": {
+        "operationId": "reuse-sites",
+        "summary": "弃土综合利用点信息",
+        "security": [],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "页码"
+          },
+          {
+            "name": "limit",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "default": 10
+            },
+            "description": "每页条数；20 为本地测试工具保护上限，不代表上游最大值"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "场所名称；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "area",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "审批区；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "principal",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "联系人；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "usesoiltime",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "备案开始时间；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "usesoilendtime",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "备案结束时间；来源于原站 UI/前端，具体匹配边界待核验"
+          },
+          {
+            "name": "validstate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "已通过"
+              ],
+              "default": "已通过"
+            },
+            "description": "对应截图入口的固定查询条件"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "须同时检查 success、code；HTTP 200 不代表业务成功。分页列表位于 result.rows 和 result.total。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": true
+                          }
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
+                      },
+                      "additionalProperties": true
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dictionary/area/dictionaryValue": {
+      "get": {
+        "operationId": "districts",
+        "summary": "审批区字典",
+        "security": [],
+        "parameters": [
+          {
+            "name": "area",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "conferenceType"
+              ],
+              "default": "conferenceType"
+            },
+            "description": "对应截图入口的固定查询条件"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "须同时检查 success、code；HTTP 200 不代表业务成功。分页列表位于 result.rows 和 result.total。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "dicname": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

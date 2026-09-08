@@ -1,0 +1,473 @@
+{
+  "info": {
+    "name": "北京市建筑垃圾 · 资质公开查询",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "核验日期 2026-09-05。6 项查询及审批区字典。仅匿名 GET。来源 http://ztxn.capcloud.com.cn:8080/dist/assets/js/app.0276dc10.js。旧平台已发布关停迁移通知；公开可访问不等于再发布授权。"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://ztxn.capcloud.com.cn:8080/dregs_service-dev"
+    },
+    {
+      "key": "page",
+      "value": "1"
+    },
+    {
+      "key": "limit",
+      "value": "10"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 北京市建筑垃圾运输企业名录",
+      "request": {
+        "method": "GET",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/putOnRecords/trans-company-info/pageList/{{page}}/{{limit}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "putOnRecords",
+            "trans-company-info",
+            "pageList",
+            "{{page}}",
+            "{{limit}}"
+          ],
+          "query": [
+            {
+              "key": "companyName",
+              "value": "",
+              "disabled": true,
+              "description": "运输企业名称"
+            },
+            {
+              "key": "qxname",
+              "value": "",
+              "disabled": true,
+              "description": "审批区"
+            },
+            {
+              "key": "spdate",
+              "value": "",
+              "disabled": true,
+              "description": "审批时间，yyyy-MM-dd"
+            }
+          ]
+        },
+        "description": "来源页面：/transportCompany。参数按原站前端提取，未穷举所有组合。"
+      },
+      "response": []
+    },
+    {
+      "name": "02 建筑垃圾运输车辆信息",
+      "request": {
+        "method": "GET",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/putOnRecords/transport-permmit/pageList?page=1&limit=10",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "putOnRecords",
+            "transport-permmit",
+            "pageList"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1",
+              "description": "原站固定参数或分页参数"
+            },
+            {
+              "key": "limit",
+              "value": "10",
+              "description": "原站固定参数或分页参数"
+            },
+            {
+              "key": "platecodes",
+              "value": "",
+              "disabled": true,
+              "description": "车牌号"
+            },
+            {
+              "key": "companyName",
+              "value": "",
+              "disabled": true,
+              "description": "所属企业"
+            },
+            {
+              "key": "fSection",
+              "value": "",
+              "disabled": true,
+              "description": "审批区"
+            },
+            {
+              "key": "startBeforeTime",
+              "value": "",
+              "disabled": true,
+              "description": "许可开始时间 · 起，yyyy-MM-dd 00:00:00"
+            },
+            {
+              "key": "startAfterTime",
+              "value": "",
+              "disabled": true,
+              "description": "许可开始时间 · 止，yyyy-MM-dd 00:00:00"
+            },
+            {
+              "key": "endBeforeTime",
+              "value": "",
+              "disabled": true,
+              "description": "许可结束时间 · 起，yyyy-MM-dd 00:00:00"
+            },
+            {
+              "key": "endAfterTime",
+              "value": "",
+              "disabled": true,
+              "description": "许可结束时间 · 止，yyyy-MM-dd 00:00:00"
+            }
+          ]
+        },
+        "description": "来源页面：/transportCar。参数按原站前端提取，未穷举所有组合。"
+      },
+      "response": []
+    },
+    {
+      "name": "03 新能源建筑垃圾运输企业名录",
+      "request": {
+        "method": "GET",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/putOnRecords/trans-company-info/pageListEnergy/{{page}}/{{limit}}?isNewEnergyComp=1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "putOnRecords",
+            "trans-company-info",
+            "pageListEnergy",
+            "{{page}}",
+            "{{limit}}"
+          ],
+          "query": [
+            {
+              "key": "isNewEnergyComp",
+              "value": "1",
+              "description": "原站固定参数或分页参数"
+            },
+            {
+              "key": "companyName",
+              "value": "",
+              "disabled": true,
+              "description": "运输企业名称"
+            },
+            {
+              "key": "qxname",
+              "value": "",
+              "disabled": true,
+              "description": "审批区"
+            },
+            {
+              "key": "spdate",
+              "value": "",
+              "disabled": true,
+              "description": "审批时间，yyyy-MM-dd"
+            }
+          ]
+        },
+        "description": "来源页面：/newEnergyTransportCompany。参数按原站前端提取，未穷举所有组合。"
+      },
+      "response": []
+    },
+    {
+      "name": "04 新能源建筑垃圾运输车辆信息",
+      "request": {
+        "method": "GET",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/putOnRecords/transport-permmit/pageListEnergy?isNewEnergyCar=1&page=1&limit=10",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "putOnRecords",
+            "transport-permmit",
+            "pageListEnergy"
+          ],
+          "query": [
+            {
+              "key": "isNewEnergyCar",
+              "value": "1",
+              "description": "原站固定参数或分页参数"
+            },
+            {
+              "key": "page",
+              "value": "1",
+              "description": "原站固定参数或分页参数"
+            },
+            {
+              "key": "limit",
+              "value": "10",
+              "description": "原站固定参数或分页参数"
+            },
+            {
+              "key": "platecodes",
+              "value": "",
+              "disabled": true,
+              "description": "车牌号"
+            },
+            {
+              "key": "companyName",
+              "value": "",
+              "disabled": true,
+              "description": "所属企业"
+            },
+            {
+              "key": "fSection",
+              "value": "",
+              "disabled": true,
+              "description": "审批区"
+            },
+            {
+              "key": "newEnergyType",
+              "value": "",
+              "disabled": true,
+              "description": "新能源类型"
+            },
+            {
+              "key": "startBeforeTime",
+              "value": "",
+              "disabled": true,
+              "description": "许可开始时间 · 起，yyyy-MM-dd 00:00:00"
+            },
+            {
+              "key": "startAfterTime",
+              "value": "",
+              "disabled": true,
+              "description": "许可开始时间 · 止，yyyy-MM-dd 00:00:00"
+            },
+            {
+              "key": "endBeforeTime",
+              "value": "",
+              "disabled": true,
+              "description": "许可结束时间 · 起，yyyy-MM-dd 00:00:00"
+            },
+            {
+              "key": "endAfterTime",
+              "value": "",
+              "disabled": true,
+              "description": "许可结束时间 · 止，yyyy-MM-dd 00:00:00"
+            }
+          ]
+        },
+        "description": "来源页面：/newEnergyTransportCar。参数按原站前端提取，未穷举所有组合。"
+      },
+      "response": []
+    },
+    {
+      "name": "05 建筑垃圾消纳场、临时处置点信息",
+      "request": {
+        "method": "GET",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/putOnRecords/unijz-unit-absorptive/pageListNoToken/{{page}}/{{limit}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "putOnRecords",
+            "unijz-unit-absorptive",
+            "pageListNoToken",
+            "{{page}}",
+            "{{limit}}"
+          ],
+          "query": [
+            {
+              "key": "disposalname",
+              "value": "",
+              "disabled": true,
+              "description": "场所名称"
+            },
+            {
+              "key": "area",
+              "value": "",
+              "disabled": true,
+              "description": "审批区"
+            },
+            {
+              "key": "state",
+              "value": "",
+              "disabled": true,
+              "description": "审核状态"
+            },
+            {
+              "key": "type",
+              "value": "",
+              "disabled": true,
+              "description": "场所类型"
+            },
+            {
+              "key": "recordstarttime",
+              "value": "",
+              "disabled": true,
+              "description": "备案开始时间，yyyy-MM-dd 00:00:00"
+            },
+            {
+              "key": "recordendtime",
+              "value": "",
+              "disabled": true,
+              "description": "备案结束时间，yyyy-MM-dd 00:00:00"
+            }
+          ]
+        },
+        "description": "来源页面：/transportXnc?type=1。参数按原站前端提取，未穷举所有组合。"
+      },
+      "response": []
+    },
+    {
+      "name": "06 弃土综合利用点信息",
+      "request": {
+        "method": "GET",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/putOnRecords/unijz-unit-comprehensive/pageListNoToken/{{page}}/{{limit}}?validstate=%E5%B7%B2%E9%80%9A%E8%BF%87",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "putOnRecords",
+            "unijz-unit-comprehensive",
+            "pageListNoToken",
+            "{{page}}",
+            "{{limit}}"
+          ],
+          "query": [
+            {
+              "key": "validstate",
+              "value": "已通过",
+              "description": "原站固定参数或分页参数"
+            },
+            {
+              "key": "name",
+              "value": "",
+              "disabled": true,
+              "description": "场所名称"
+            },
+            {
+              "key": "area",
+              "value": "",
+              "disabled": true,
+              "description": "审批区"
+            },
+            {
+              "key": "principal",
+              "value": "",
+              "disabled": true,
+              "description": "联系人"
+            },
+            {
+              "key": "usesoiltime",
+              "value": "",
+              "disabled": true,
+              "description": "备案开始时间，yyyy-MM-dd"
+            },
+            {
+              "key": "usesoilendtime",
+              "value": "",
+              "disabled": true,
+              "description": "备案结束时间，yyyy-MM-dd"
+            }
+          ]
+        },
+        "description": "来源页面：/transportZhlyd?type=1。参数按原站前端提取，未穷举所有组合。"
+      },
+      "response": []
+    },
+    {
+      "name": "07 审批区字典",
+      "request": {
+        "method": "GET",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/dictionary/area/dictionaryValue?area=conferenceType",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "dictionary",
+            "area",
+            "dictionaryValue"
+          ],
+          "query": [
+            {
+              "key": "area",
+              "value": "conferenceType",
+              "description": "原站固定参数或分页参数"
+            }
+          ]
+        },
+        "description": "来源页面：各查询页审批区下拉框。参数按原站前端提取，未穷举所有组合。"
+      },
+      "response": []
+    }
+  ]
+}

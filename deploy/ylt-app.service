@@ -1,0 +1,14 @@
+[Unit]
+Description=YLT Plate and Fleet Performance Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/www/wwwroot/ylt.rlxtc.com
+ExecStart=/www/wwwroot/ylt.rlxtc.com/.venv/bin/python3 -m uvicorn web-server:app --host 127.0.0.1 --port 8002 --workers 1
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

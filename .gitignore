@@ -12,3 +12,11 @@ __pycache__/
 *.db
 worksite_plate.db
 uploaded_imgs/
+*.db-wal
+*.db-shm
+*.sqlite*
+*.pem
+*.key
+.env
+.env.*
+!*.env.example

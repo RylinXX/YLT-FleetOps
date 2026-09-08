@@ -1,0 +1,240 @@
+{
+  "mode": "Database-backed category validation; report contains metadata only",
+  "results": [
+    {
+      "id": "companies",
+      "total": 1798,
+      "loaded": 1796,
+      "pages": 1,
+      "coverageComplete": false,
+      "warning": "来源标注 1798 条，本次取得 1796 条去重记录。来源分页存在数量或标识差异，无法确认完整性。",
+      "quality": {
+        "sourceTotal": 1798,
+        "returned": 1796,
+        "uniqueRows": 1796,
+        "duplicateRows": 0,
+        "duplicateIds": 4
+      },
+      "database": {
+        "storedTotal": 1796,
+        "currentTotal": 1796,
+        "retainedTotal": 0,
+        "historicalTotal": 0,
+        "lastSyncAt": "2026-09-06T10:42:43.501Z",
+        "lastWriteAt": "2026-09-06T10:42:43.501Z",
+        "lastAttemptAt": "2026-09-06T10:42:43.291Z",
+        "lastError": null,
+        "lastRun": {
+          "id": 1,
+          "status": "partial",
+          "started_at": "2026-09-06T10:42:43.291Z",
+          "finished_at": "2026-09-06T10:42:43.501Z",
+          "inserted": 1796,
+          "updated": 0,
+          "unchanged": 0,
+          "retained": 0,
+          "archived": 0
+        }
+      },
+      "checkedAt": "2026-09-06T10:42:44.834Z",
+      "sourceUpdatedAt": "2026-09-06T10:42:43.501Z",
+      "durationMs": 1768
+    },
+    {
+      "id": "vehicles",
+      "total": 12950,
+      "loaded": 12950,
+      "pages": 1,
+      "coverageComplete": true,
+      "quality": {
+        "sourceTotal": 12950,
+        "returned": 12950,
+        "uniqueRows": 12950,
+        "duplicateRows": 0,
+        "duplicateIds": 0
+      },
+      "database": {
+        "storedTotal": 12950,
+        "currentTotal": 12950,
+        "retainedTotal": 0,
+        "historicalTotal": 0,
+        "lastSyncAt": "2026-09-06T10:42:45.731Z",
+        "lastWriteAt": "2026-09-06T10:42:45.731Z",
+        "lastAttemptAt": "2026-09-06T10:42:44.912Z",
+        "lastError": null,
+        "lastRun": {
+          "id": 2,
+          "status": "completed",
+          "started_at": "2026-09-06T10:42:44.912Z",
+          "finished_at": "2026-09-06T10:42:45.731Z",
+          "inserted": 12950,
+          "updated": 0,
+          "unchanged": 0,
+          "retained": 0,
+          "archived": 0
+        }
+      },
+      "checkedAt": "2026-09-06T10:42:46.985Z",
+      "sourceUpdatedAt": "2026-09-06T10:42:45.731Z",
+      "durationMs": 2150,
+      "knownExpiry": 12950
+    },
+    {
+      "id": "energy-companies",
+      "total": 290,
+      "loaded": 290,
+      "pages": 1,
+      "coverageComplete": true,
+      "quality": {
+        "sourceTotal": 290,
+        "returned": 290,
+        "uniqueRows": 290,
+        "duplicateRows": 0,
+        "duplicateIds": 0
+      },
+      "database": {
+        "storedTotal": 290,
+        "currentTotal": 290,
+        "retainedTotal": 0,
+        "historicalTotal": 0,
+        "lastSyncAt": "2026-09-06T10:42:47.664Z",
+        "lastWriteAt": "2026-09-06T10:42:47.664Z",
+        "lastAttemptAt": "2026-09-06T10:42:47.603Z",
+        "lastError": null,
+        "lastRun": {
+          "id": 3,
+          "status": "completed",
+          "started_at": "2026-09-06T10:42:47.603Z",
+          "finished_at": "2026-09-06T10:42:47.664Z",
+          "inserted": 290,
+          "updated": 0,
+          "unchanged": 0,
+          "retained": 0,
+          "archived": 0
+        }
+      },
+      "checkedAt": "2026-09-06T10:42:49.122Z",
+      "sourceUpdatedAt": "2026-09-06T10:42:47.664Z",
+      "durationMs": 1597
+    },
+    {
+      "id": "energy-vehicles",
+      "total": 1632,
+      "loaded": 1632,
+      "pages": 1,
+      "coverageComplete": true,
+      "quality": {
+        "sourceTotal": 1632,
+        "returned": 1632,
+        "uniqueRows": 1632,
+        "duplicateRows": 0,
+        "duplicateIds": 0
+      },
+      "database": {
+        "storedTotal": 1632,
+        "currentTotal": 1632,
+        "retainedTotal": 0,
+        "historicalTotal": 0,
+        "lastSyncAt": "2026-09-06T10:42:49.315Z",
+        "lastWriteAt": "2026-09-06T10:42:49.315Z",
+        "lastAttemptAt": "2026-09-06T10:42:49.200Z",
+        "lastError": null,
+        "lastRun": {
+          "id": 4,
+          "status": "completed",
+          "started_at": "2026-09-06T10:42:49.200Z",
+          "finished_at": "2026-09-06T10:42:49.315Z",
+          "inserted": 1632,
+          "updated": 0,
+          "unchanged": 0,
+          "retained": 0,
+          "archived": 0
+        }
+      },
+      "checkedAt": "2026-09-06T10:42:50.716Z",
+      "sourceUpdatedAt": "2026-09-06T10:42:49.315Z",
+      "durationMs": 1594,
+      "knownExpiry": 1632
+    },
+    {
+      "id": "disposal-sites",
+      "total": 85,
+      "loaded": 85,
+      "pages": 1,
+      "coverageComplete": true,
+      "quality": {
+        "sourceTotal": 85,
+        "returned": 85,
+        "uniqueRows": 85,
+        "duplicateRows": 0,
+        "duplicateIds": 0
+      },
+      "database": {
+        "storedTotal": 85,
+        "currentTotal": 85,
+        "retainedTotal": 0,
+        "historicalTotal": 0,
+        "lastSyncAt": "2026-09-06T10:42:50.900Z",
+        "lastWriteAt": "2026-09-06T10:42:50.900Z",
+        "lastAttemptAt": "2026-09-06T10:42:50.858Z",
+        "lastError": null,
+        "lastRun": {
+          "id": 5,
+          "status": "completed",
+          "started_at": "2026-09-06T10:42:50.858Z",
+          "finished_at": "2026-09-06T10:42:50.900Z",
+          "inserted": 85,
+          "updated": 0,
+          "unchanged": 0,
+          "retained": 0,
+          "archived": 0
+        }
+      },
+      "checkedAt": "2026-09-06T10:42:52.318Z",
+      "sourceUpdatedAt": "2026-09-06T10:42:50.900Z",
+      "durationMs": 1537,
+      "capacityOver5000": 76,
+      "knownExpiry": 85
+    },
+    {
+      "id": "reuse-sites",
+      "total": 378,
+      "loaded": 378,
+      "pages": 1,
+      "coverageComplete": true,
+      "quality": {
+        "sourceTotal": 378,
+        "returned": 378,
+        "uniqueRows": 378,
+        "duplicateRows": 0,
+        "duplicateIds": 0
+      },
+      "database": {
+        "storedTotal": 378,
+        "currentTotal": 378,
+        "retainedTotal": 0,
+        "historicalTotal": 0,
+        "lastSyncAt": "2026-09-06T10:42:52.497Z",
+        "lastWriteAt": "2026-09-06T10:42:52.497Z",
+        "lastAttemptAt": "2026-09-06T10:42:52.400Z",
+        "lastError": null,
+        "lastRun": {
+          "id": 6,
+          "status": "completed",
+          "started_at": "2026-09-06T10:42:52.400Z",
+          "finished_at": "2026-09-06T10:42:52.497Z",
+          "inserted": 378,
+          "updated": 0,
+          "unchanged": 0,
+          "retained": 0,
+          "archived": 0
+        }
+      },
+      "checkedAt": "2026-09-06T10:42:53.885Z",
+      "sourceUpdatedAt": "2026-09-06T10:42:52.497Z",
+      "durationMs": 1563,
+      "capacityOver5000": 143,
+      "knownExpiry": 378
+    }
+  ]
+}

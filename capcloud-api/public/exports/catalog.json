@@ -1,0 +1,515 @@
+{
+  "baseUrl": "http://ztxn.capcloud.com.cn:8080/dregs_service-dev",
+  "verifiedDate": "2026-09-05",
+  "sourceBundle": "http://ztxn.capcloud.com.cn:8080/dist/assets/js/app.0276dc10.js",
+  "endpoints": [
+    {
+      "id": "companies",
+      "order": "01",
+      "shortName": "运输企业名录",
+      "name": "北京市建筑垃圾运输企业名录",
+      "category": "企业资质",
+      "icon": "Building2",
+      "route": "/transportCompany",
+      "sourceModule": "9941",
+      "sourceFunction": "getcompany",
+      "path": "/putOnRecords/trans-company-info/pageList/{page}/{limit}",
+      "pagination": "path",
+      "fields": [
+        {
+          "key": "companyName",
+          "label": "运输企业名称",
+          "type": "text"
+        },
+        {
+          "key": "qxname",
+          "label": "审批区",
+          "type": "district"
+        },
+        {
+          "key": "spdate",
+          "label": "审批时间",
+          "type": "date"
+        }
+      ],
+      "fixed": {},
+      "sampleTotal": 1798,
+      "columns": [
+        {
+          "key": "companyName",
+          "label": "企业名称"
+        },
+        {
+          "key": "bank",
+          "label": "审批区"
+        },
+        {
+          "key": "carNum",
+          "label": "许可车辆数"
+        },
+        {
+          "key": "spdate",
+          "label": "审批时间"
+        },
+        {
+          "key": "address",
+          "label": "地址"
+        },
+        {
+          "key": "legalRep",
+          "label": "企业法人"
+        },
+        {
+          "key": "phone",
+          "label": "联系方式"
+        }
+      ]
+    },
+    {
+      "id": "vehicles",
+      "order": "02",
+      "shortName": "运输车辆信息",
+      "name": "建筑垃圾运输车辆信息",
+      "category": "车辆资质",
+      "icon": "Truck",
+      "route": "/transportCar",
+      "sourceModule": "b81c",
+      "sourceFunction": "getpermmit",
+      "path": "/putOnRecords/transport-permmit/pageList",
+      "pagination": "query",
+      "fields": [
+        {
+          "key": "platecodes",
+          "label": "车牌号",
+          "type": "text"
+        },
+        {
+          "key": "companyName",
+          "label": "所属企业",
+          "type": "text"
+        },
+        {
+          "key": "fSection",
+          "label": "审批区",
+          "type": "district"
+        },
+        {
+          "key": "startBeforeTime",
+          "label": "许可开始时间 · 起",
+          "type": "datetime"
+        },
+        {
+          "key": "startAfterTime",
+          "label": "许可开始时间 · 止",
+          "type": "datetime"
+        },
+        {
+          "key": "endBeforeTime",
+          "label": "许可结束时间 · 起",
+          "type": "datetime"
+        },
+        {
+          "key": "endAfterTime",
+          "label": "许可结束时间 · 止",
+          "type": "datetime"
+        }
+      ],
+      "fixed": {},
+      "sampleTotal": 12882,
+      "columns": [
+        {
+          "key": "platecodes",
+          "label": "车牌号"
+        },
+        {
+          "key": "companyName",
+          "label": "所属企业"
+        },
+        {
+          "key": "fsection",
+          "label": "审批区"
+        },
+        {
+          "key": "startDate",
+          "label": "许可开始时间"
+        },
+        {
+          "key": "endDate",
+          "label": "许可结束时间"
+        }
+      ]
+    },
+    {
+      "id": "energy-companies",
+      "order": "03",
+      "shortName": "新能源运输企业",
+      "name": "新能源建筑垃圾运输企业名录",
+      "category": "新能源资质",
+      "icon": "Leaf",
+      "route": "/newEnergyTransportCompany",
+      "sourceModule": "8ffe",
+      "sourceFunction": "getcompanyeEnergy",
+      "path": "/putOnRecords/trans-company-info/pageListEnergy/{page}/{limit}",
+      "pagination": "path",
+      "fields": [
+        {
+          "key": "companyName",
+          "label": "运输企业名称",
+          "type": "text"
+        },
+        {
+          "key": "qxname",
+          "label": "审批区",
+          "type": "district"
+        },
+        {
+          "key": "spdate",
+          "label": "审批时间",
+          "type": "date"
+        }
+      ],
+      "fixed": {
+        "isNewEnergyComp": "1"
+      },
+      "sampleTotal": 290,
+      "columns": [
+        {
+          "key": "companyName",
+          "label": "企业名称"
+        },
+        {
+          "key": "area",
+          "label": "审批区"
+        },
+        {
+          "key": "energyCarNum",
+          "label": "新能源许可车辆数"
+        },
+        {
+          "key": "spdate",
+          "label": "审批时间"
+        },
+        {
+          "key": "address",
+          "label": "地址"
+        },
+        {
+          "key": "legalRep",
+          "label": "企业法人"
+        },
+        {
+          "key": "phone",
+          "label": "联系方式"
+        }
+      ]
+    },
+    {
+      "id": "energy-vehicles",
+      "order": "04",
+      "shortName": "新能源运输车辆",
+      "name": "新能源建筑垃圾运输车辆信息",
+      "category": "新能源资质",
+      "icon": "Zap",
+      "route": "/newEnergyTransportCar",
+      "sourceModule": "8a61",
+      "sourceFunction": "getpermmitEnergy",
+      "path": "/putOnRecords/transport-permmit/pageListEnergy",
+      "pagination": "query",
+      "fields": [
+        {
+          "key": "platecodes",
+          "label": "车牌号",
+          "type": "text"
+        },
+        {
+          "key": "companyName",
+          "label": "所属企业",
+          "type": "text"
+        },
+        {
+          "key": "fSection",
+          "label": "审批区",
+          "type": "district"
+        },
+        {
+          "key": "newEnergyType",
+          "label": "新能源类型",
+          "type": "select",
+          "options": [
+            "氢燃料",
+            "电动"
+          ]
+        },
+        {
+          "key": "startBeforeTime",
+          "label": "许可开始时间 · 起",
+          "type": "datetime"
+        },
+        {
+          "key": "startAfterTime",
+          "label": "许可开始时间 · 止",
+          "type": "datetime"
+        },
+        {
+          "key": "endBeforeTime",
+          "label": "许可结束时间 · 起",
+          "type": "datetime"
+        },
+        {
+          "key": "endAfterTime",
+          "label": "许可结束时间 · 止",
+          "type": "datetime"
+        }
+      ],
+      "fixed": {
+        "isNewEnergyCar": "1"
+      },
+      "sampleTotal": 1632,
+      "columns": [
+        {
+          "key": "plateCode",
+          "label": "车牌号"
+        },
+        {
+          "key": "companyName",
+          "label": "所属企业"
+        },
+        {
+          "key": "energyType",
+          "label": "新能源类型"
+        },
+        {
+          "key": "area",
+          "label": "审批区"
+        },
+        {
+          "key": "permitStartDate",
+          "label": "许可开始时间"
+        },
+        {
+          "key": "permitEndDate",
+          "label": "许可结束时间"
+        }
+      ]
+    },
+    {
+      "id": "disposal-sites",
+      "order": "05",
+      "shortName": "消纳场与临时处置点",
+      "name": "建筑垃圾消纳场、临时处置点信息",
+      "category": "场所资质",
+      "icon": "Warehouse",
+      "route": "/transportXnc?type=1",
+      "sourceModule": "bcf0",
+      "sourceFunction": "gettreatmentLogin",
+      "path": "/putOnRecords/unijz-unit-absorptive/pageListNoToken/{page}/{limit}",
+      "pagination": "path",
+      "fixed": {},
+      "sampleTotal": 85,
+      "fields": [
+        {
+          "key": "disposalname",
+          "label": "场所名称",
+          "type": "text"
+        },
+        {
+          "key": "area",
+          "label": "审批区",
+          "type": "district"
+        },
+        {
+          "key": "state",
+          "label": "审核状态",
+          "type": "select",
+          "options": [
+            "已通过"
+          ]
+        },
+        {
+          "key": "type",
+          "label": "场所类型",
+          "type": "select",
+          "options": [
+            {
+              "value": "1",
+              "label": "建筑垃圾填埋场"
+            },
+            {
+              "value": "3",
+              "label": "建筑垃圾临时贮存点"
+            },
+            {
+              "value": "11",
+              "label": "建筑垃圾就地资源化处置设施"
+            },
+            {
+              "value": "4",
+              "label": "固定式建筑垃圾资源化处置设施"
+            },
+            {
+              "value": "5",
+              "label": "临时性建筑垃圾资源化处置设施"
+            }
+          ]
+        },
+        {
+          "key": "recordstarttime",
+          "label": "备案开始时间",
+          "type": "datetime"
+        },
+        {
+          "key": "recordendtime",
+          "label": "备案结束时间",
+          "type": "datetime"
+        }
+      ],
+      "columns": [
+        {
+          "key": "disposalname",
+          "label": "场所名称"
+        },
+        {
+          "key": "area",
+          "label": "审批区"
+        },
+        {
+          "key": "disposaltype",
+          "label": "场所类型"
+        },
+        {
+          "key": "validstate",
+          "label": "经营状态"
+        },
+        {
+          "key": "capacityresidue",
+          "label": "剩余容量（吨）"
+        },
+        {
+          "key": "floorarea",
+          "label": "建设规模（亩）"
+        },
+        {
+          "key": "recordstarttime",
+          "label": "备案开始时间"
+        },
+        {
+          "key": "recordendtime",
+          "label": "备案结束时间"
+        },
+        {
+          "key": "site",
+          "label": "详细地址"
+        },
+        {
+          "key": "principal",
+          "label": "联系人"
+        },
+        {
+          "key": "phone",
+          "label": "联系电话"
+        }
+      ]
+    },
+    {
+      "id": "reuse-sites",
+      "order": "06",
+      "shortName": "弃土综合利用点",
+      "name": "弃土综合利用点信息",
+      "category": "场所资质",
+      "icon": "MapPin",
+      "route": "/transportZhlyd?type=1",
+      "sourceModule": "14ec",
+      "sourceFunction": "getLoginZhlyd",
+      "path": "/putOnRecords/unijz-unit-comprehensive/pageListNoToken/{page}/{limit}",
+      "pagination": "path",
+      "fixed": {
+        "validstate": "已通过"
+      },
+      "sampleTotal": 379,
+      "fields": [
+        {
+          "key": "name",
+          "label": "场所名称",
+          "type": "text"
+        },
+        {
+          "key": "area",
+          "label": "审批区",
+          "type": "district"
+        },
+        {
+          "key": "principal",
+          "label": "联系人",
+          "type": "text"
+        },
+        {
+          "key": "usesoiltime",
+          "label": "备案开始时间",
+          "type": "date"
+        },
+        {
+          "key": "usesoilendtime",
+          "label": "备案结束时间",
+          "type": "date"
+        }
+      ],
+      "columns": [
+        {
+          "key": "name",
+          "label": "场所名称"
+        },
+        {
+          "key": "area",
+          "label": "审批区"
+        },
+        {
+          "key": "validstate",
+          "label": "审核状态"
+        },
+        {
+          "key": "capacityresidue",
+          "label": "剩余容量"
+        },
+        {
+          "key": "operationunit",
+          "label": "经营单位"
+        },
+        {
+          "key": "applicant",
+          "label": "申请单位"
+        },
+        {
+          "key": "usesoiladress",
+          "label": "详细地址"
+        },
+        {
+          "key": "usesoiltime",
+          "label": "备案开始时间"
+        },
+        {
+          "key": "usesoilendtime",
+          "label": "备案结束时间"
+        },
+        {
+          "key": "principal",
+          "label": "联系人"
+        },
+        {
+          "key": "phone",
+          "label": "联系电话"
+        }
+      ]
+    },
+    {
+      "id": "districts",
+      "name": "审批区字典",
+      "path": "/dictionary/area/dictionaryValue",
+      "pagination": "none",
+      "fixed": {
+        "area": "conferenceType"
+      },
+      "fields": [],
+      "columns": []
+    }
+  ]
+}
