@@ -35,7 +35,7 @@ except BaseException as e:
     print(f"[Warning] 导入识别模块失败 (PyTorch/DLL 环境可能有问题): {e}")
     LocalSimulatedCloudRecognizer = None
 
-app = FastAPI(title="工地车牌识别与进出统计后台系统")
+app = FastAPI(title="运衡 · YLT 运输运营平台")
 
 # 挂载本地静态文件目录（图标、JS 等）
 STATIC_DIR = os.path.join(current_dir, "static")
@@ -269,7 +269,7 @@ def init_db() -> None:
         )
     """)
     default_sync_cfgs = [
-        ("authtoken", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ5bHRkc3QiLCJyb2xlSWQiOjExLCJpcCI6IjEyNy4wLjAuMSIsInVzZXJOYW1lIjoieWx0ZHN0IiwiZW50ZXJwcmlzZW5hbWUiOiLkuK3lpK7lub_mkq3nlLXop4bmgLvlj7DotoXpq5jmuIXnpLrojIPlm63lt6XnqIso5ryU5pKt6KeG5ZCs5Lit5b-DKSIsInNpdGV0eXBlIjoi5bel56iL57G7IiwidXNlcklkIjoyNzA4MTcsImlkZW50aWZpZXJDb2RlIjoicGMiLCJkaXN0cmljdCI6IumXqOWktOayn-WMuiIsImVudGVycHJpc2V0eXBlIjoi5bel5ZywIiwicm9sZU5hbWUiOiLlt6XlnLDotJ_otKPkuroiLCJlbnRlcnByaXNlaWQiOjIyNTY0MiwiZXhwIjoxODY2NjA0MTc1LCJiZWlhbmlkIjoyMjU2NDJ9.bd6zAZgcBIup_w_eZ4FIKofzbe9AW9mqKqQuskoHIa0"),
+        ("authtoken", os.environ.get("YLT_SYNC_TOKEN", "")),
         ("worksite_id", "225642"),
         ("worksitetype", "1"),
         ("auto_sync_enabled", "1"),
