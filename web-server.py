@@ -35,7 +35,7 @@ except BaseException as e:
     print(f"[Warning] 导入识别模块失败 (PyTorch/DLL 环境可能有问题): {e}")
     LocalSimulatedCloudRecognizer = None
 
-app = FastAPI(title="运衡 · YLT 运输运营平台")
+app = FastAPI(title="营力特 · YLT 运输运营平台")
 
 # 挂载本地静态文件目录（图标、JS 等）
 STATIC_DIR = os.path.join(current_dir, "static")
